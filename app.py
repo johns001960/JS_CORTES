@@ -102,9 +102,8 @@ def available_times():
         """, (day,)).fetchall()
     occupied = {r["appointment_time"] for r in booked}
     # Altere esta lista para ajustar os horários de atendimento da barbearia.
-    slots = ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
-             "11:00", "13:00", "13:30", "14:00", "14:30", "15:00",
-             "15:30", "16:00", "16:30", "17:00", "17:30"]
+    slots = ["09:00", "10:00", "11:00",
+         "13:00", "14:00", "15:00", "16:00", "17:00"]
     return {"times": [t for t in slots if t not in occupied]}
 
 @app.route("/agendar", methods=["POST"])
