@@ -114,6 +114,7 @@ def book():
     service_id = request.form.get("service_id", "")
     day = request.form.get("appointment_date", "")
     time = request.form.get("appointment_time", "")
+    payment_method = request.form.get("payment_method", "Pix").strip()
     if not name or not service_id or not day or not time:
         flash("Preencha nome, serviço, data e horário.")
         return redirect(url_for("home"))
@@ -128,8 +129,8 @@ def book():
         try:
             con.execute("""
                 INSERT INTO appointments(customer_name,phone,service_id,appointment_date,
-                appointment_time,created_at) VALUES(?,?,?,?,?,?)
-            """, (name, phone, service_id, day, time, datetime.now().isoformat(timespec="minutes")))
+                appointment_time,payment_method,created_at) VALUES(?,?,?,?,?,?,?)
+            """, (name, phone, service_id, day, time,payment_method, datetime.now().isoformat(timespec="minutes")))
         except sqlite3.IntegrityError:
             flash("Esse horário já foi reservado. Escolha outro.")
             return redirect(url_for("home"))
