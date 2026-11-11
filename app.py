@@ -28,6 +28,11 @@ def init_db():
             price REAL NOT NULL DEFAULT 0,
             active INTEGER NOT NULL DEFAULT 1
         );
+        CREATE TABLE IF NOT EXISTS payment_methods (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    active INTEGER NOT NULL DEFAULT 1
+);
         CREATE TABLE IF NOT EXISTS appointments (
             id INTEGER PRIMARY KEY,
             customer_name TEXT NOT NULL,
@@ -44,8 +49,12 @@ def init_db():
         );
         CREATE UNIQUE INDEX IF NOT EXISTS unique_active_slot
         ON appointments(appointment_date, appointment_time)
+
+               
         WHERE status != 'Cancelado';
         """)
+        for name in ["Pix", "Dinheiro", "Cartão"]:
+                con.execute("INSERT OR IGNORE INTO payment_methods (name, active) VALUES (?, 1)", (name,))
         if not con.execute("SELECT id FROM admins LIMIT 1").fetchone():
             con.execute("INSERT INTO admins(username,password_hash) VALUES(?,?)",
                         ("admin", generate_password_hash("troque123")))
