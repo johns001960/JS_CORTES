@@ -1,0 +1,63 @@
+JS CORTES — SISTEMA INICIAL ATUALIZADO
+=====================================
+
+ESTA VERSÃO INCLUI
+- Página pública de agendamento para clientes.
+- Horários disponíveis e bloqueio de horários já reservados.
+- Painel administrativo protegido por login.
+- Lista de agendamentos.
+- Editar cliente, telefone, serviço, data e horário.
+- Reagendar para outra data/horário livre.
+- Trocar o cliente mantendo o mesmo horário (somente agendamentos ainda agendados).
+- Cancelar ou excluir agendamentos não concluídos.
+- Impede excluir atendimento concluído para preservar o histórico financeiro.
+- Registrar atendimento concluído, valor recebido e forma de pagamento.
+- Somar valores recebidos no dia, semana e mês.
+- Cadastrar serviços e preços; desativar serviços.
+- Alterar senha administrativa.
+
+REQUISITOS
+- Python 3.10 ou superior
+- Visual Studio Code
+
+INSTALAÇÃO NO WINDOWS
+1. Extraia o ZIP para uma pasta.
+2. Abra essa pasta no Visual Studio Code.
+3. Menu Terminal > Novo Terminal.
+4. Execute:
+   py -m pip install -r requirements.txt
+5. Depois execute:
+   py app.py
+6. No navegador abra:
+   http://127.0.0.1:5000
+
+ENDEREÇOS
+- Página dos clientes: http://127.0.0.1:5000/
+- Login administrativo: http://127.0.0.1:5000/admin/login
+
+ACESSO INICIAL
+- Usuário: admin
+- Senha: troque123
+
+IMPORTANTE: entre no painel e altere a senha imediatamente para uma senha forte
+com pelo menos 10 caracteres.
+
+AJUSTAR HORÁRIOS DE ATENDIMENTO
+No arquivo app.py, procure a lista chamada slots dentro da rota /horarios.
+Edite os horários para os horários em que a barbearia realmente atende.
+
+BANCO DE DADOS
+O arquivo js_cortes.db será criado automaticamente na primeira execução.
+Faça cópias de segurança desse arquivo regularmente.
+Não apague o banco para atualizar o código se já tiver dados reais.
+
+ATENÇÃO — ANTES DE PUBLICAR NA INTERNET
+Esta versão é para teste local. Não publique usando o servidor de desenvolvimento
+do Flask com debug ligado. Antes de colocar online, será necessário configurar:
+- hospedagem/servidor de produção;
+- HTTPS;
+- SECRET_KEY longa, aleatória e privada;
+- proteção contra tentativas repetidas de login e proteção CSRF;
+- cópias de segurança;
+- política de privacidade e cuidado com dados pessoais dos clientes.
+Não use dados reais de clientes durante os primeiros testes.

@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block title %}Editar agendamento · JS CORTES{% endblock %}{% block content %}
+<section class="panel narrow"><h1>Editar agendamento</h1><p class="muted">Altere o cliente, serviço, data ou horário. O horário precisa estar livre.</p>
+<form method="post">
+<label>Nome do cliente<input name="customer_name" value="{{a.customer_name}}" required maxlength="100"></label>
+<label>Telefone<input name="phone" value="{{a.phone or ''}}" maxlength="30"></label>
+<label>Serviço<select name="service_id" required>{% for s in services %}<option value="{{s.id}}" {% if s.id==a.service_id %}selected{% endif %}>{{s.name}} — R$ {{'%.2f'|format(s.price)}}</option>{% endfor %}</select></label>
+<label>Data<input type="date" name="appointment_date" value="{{a.appointment_date}}" min="{{today}}" required></label>
+<label>Horário<input type="time" name="appointment_time" value="{{a.appointment_time}}" required></label>
+<button>Salvar alterações</button></form><p><a href="/admin">Voltar ao painel</a></p></section>{% endblock %}

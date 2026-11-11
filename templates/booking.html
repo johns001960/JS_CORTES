@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% block title %}Agendar · JS CORTES{% endblock %}{% block content %}
+<section class="hero"><p class="eyebrow">AGENDAMENTO ONLINE</p><h1>Seu próximo corte começa aqui.</h1><p>Escolha o serviço, a data e um horário disponível.</p></section>
+<section class="panel"><h2>Faça seu agendamento</h2><form action="/agendar" method="post">
+<label>Seu nome<input name="customer_name" required maxlength="100" placeholder="Nome completo"></label>
+<label>Telefone (opcional)<input name="phone" maxlength="30" placeholder="(00) 00000-0000"></label>
+<label>Serviço<select name="service_id" required><option value="">Selecione</option>{% for s in services %}<option value="{{s.id}}">{{s.name}} — R$ {{'%.2f'|format(s.price)}}</option>{% endfor %}</select></label>
+<label>Data<input type="date" name="appointment_date" id="day" min="{{today}}" required></label>
+<label>Horários disponíveis<select name="appointment_time" id="time" required disabled><option value="">Escolha primeiro a data</option></select></label>
+<button>Confirmar agendamento</button></form></section>
+<script>
+const day=document.getElementById('day'),time=document.getElementById('time');
+day.addEventListener('change',async()=>{time.disabled=true;time.innerHTML='<option>Carregando...</option>';
+const r=await fetch('/horarios?date='+encodeURIComponent(day.value));const d=await r.json();time.innerHTML='';
+if(!d.times.length){time.innerHTML='<option value="">Nenhum horário disponível</option>';}
+else{time.innerHTML='<option value="">Selecione um horário</option>';d.times.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;time.appendChild(o);});time.disabled=false;}});
+</script>{% endblock %}

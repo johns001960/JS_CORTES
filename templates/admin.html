@@ -1,0 +1,29 @@
+{% extends "base.html" %}{% block title %}Painel · JS CORTES{% endblock %}{% block content %}
+<section class="hero"><p class="eyebrow">PAINEL PRIVADO</p><h1>Administração da JS CORTES</h1><p>Agenda, clientes e controle financeiro.</p></section>
+<div class="stats"><div class="stat"><span>Recebido hoje</span><strong>R$ {{'%.2f'|format(day_total)}}</strong></div>
+<div class="stat"><span>Recebido nesta semana</span><strong>R$ {{'%.2f'|format(week_total)}}</strong></div>
+<div class="stat"><span>Recebido neste mês</span><strong>R$ {{'%.2f'|format(month_total)}}</strong></div></div>
+<section class="panel"><h2>Agendamentos</h2><p class="muted">Você pode editar os dados, reagendar, trocar o cliente, concluir, cancelar ou excluir um agendamento.</p>
+<div class="table-wrap"><table><thead><tr><th>Data / hora</th><th>Cliente</th><th>Serviço</th><th>Status e recebimento</th><th>Gerenciar</th></tr></thead><tbody>
+{% for a in appointments %}<tr><td>{{a.appointment_date}}<br>{{a.appointment_time}}</td><td>{{a.customer_name}}<br><small>{{a.phone or ''}}</small></td><td>{{a.service_name}}</td>
+<td><form class="stack-form" method="post" action="/admin/agendamento/{{a.id}}/atualizar">
+<select name="status">{% for st in ['Agendado','Concluído','Cancelado'] %}<option {% if a.status==st %}selected{% endif %}>{{st}}</option>{% endfor %}</select>
+<input name="amount_paid" type="number" min="0" step="0.01" value="{{'%.2f'|format(a.amount_paid)}}" aria-label="Valor recebido" placeholder="Valor recebido">
+<select name="payment_method"><option value="">Pagamento</option>{% for p in ['Pix','Dinheiro','Cartão','Outro'] %}<option {% if a.payment_method==p %}selected{% endif %}>{{p}}</option>{% endfor %}</select>
+<button class="small">Salvar status/valor</button></form></td>
+<td class="actions"><a class="button-link small" href="/admin/agendamento/{{a.id}}/editar">Editar / reagendar</a>
+{% if a.status=='Agendado' %}<form method="post" action="/admin/agendamento/{{a.id}}/trocar-cliente" class="stack-form" onsubmit="return confirm('Trocar o cliente deste horário?')">
+<input name="customer_name" required placeholder="Nome do novo cliente"><input name="phone" placeholder="Telefone (opcional)"><button class="small">Trocar cliente</button></form>{% endif %}
+{% if a.status!='Concluído' %}<form method="post" action="/admin/agendamento/{{a.id}}/excluir" onsubmit="return confirm('Tem certeza que deseja excluir este agendamento? O horário será liberado.')"><button class="danger small">Excluir agendamento</button></form>{% else %}<small class="muted">Histórico financeiro protegido</small>{% endif %}</td></tr>
+{% else %}<tr><td colspan="5">Ainda não há agendamentos.</td></tr>{% endfor %}</tbody></table></div></section>
+<div class="two-col"><section class="panel"><h2>Serviços e preços</h2><form method="post" action="/admin/servico"><label>Nome do serviço<input name="name" required></label><label>Preço (R$)<input name="price" type="number" min="0" step="0.01" required></label><button>Cadastrar serviço</button></form>
+<ul class="service-list">{% for s in services %}<li class="{% if not s.active %}off{% endif %}"><span>{{s.name}} — R$ {{'%.2f'|format(s.price)}} {% if not s.active %}(Inativo){% endif %}</span><span class="row">
+{% if s.active %}
+<form method="post" action="/admin/servico/{{s.id}}/desativar"><button class="danger small">Desativar</button></form>
+{% else %}
+<form method="post" action="/admin/servico/{{s.id}}/ativar"><button class="small">Ativar</button></form>
+{% endif %}
+<a href="/admin/servico/{{s.id}}/editar"><button type="button" class="small">Editar</button></a>
+<form method="post" action="/admin/servico/{{s.id}}/excluir" onsubmit="return confirm('Apagar esse serviço?')"><button class="danger small">Apagar</button></form>
+</span></li>{% endfor %}</ul></section>
+<section class="panel"><h2>Alterar senha</h2><form method="post" action="/admin/senha"><label>Senha atual<input type="password" name="current_password" required></label><label>Nova senha (mínimo 10 caracteres)<input type="password" name="new_password" minlength="10" required></label><button>Alterar senha</button></form><p class="muted">Acesso administrativo: /admin/login. Não compartilhe sua senha.</p></section></div>{% endblock %}
