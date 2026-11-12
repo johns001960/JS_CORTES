@@ -121,15 +121,15 @@ def book():
         flash("Escolha uma data válida, a partir de hoje.")
         return redirect(url_for("home"))
     with db() as con:
-        service = con.execute("SELECT id FROM services WHERE id=? AND active=1", (service_id,)).fetchone()
+        service = con.execute("SELECT id, price FROM services WHERE id=? AND active=1", (service_id,)).fetchone()
         if not service:
             flash("Serviço inválido.")
             return redirect(url_for("home"))
         try:
             con.execute("""
                 INSERT INTO appointments(customer_name,phone,service_id,appointment_date,
-                appointment_time,payment_method,created_at) VALUES(?,?,?,?,?,?,?)
-            """, (name, phone, service_id, day, time,payment_method, datetime.now().isoformat(timespec="minutes")))
+                appointment_time,payment_method,created_at,amount_paid) VALUES(?,?,?,?,?,?,?,?)
+            """, (name, phone, service_id, day, time,payment_method, datetime.now().isoformat(timespec="minutes"), service["price"]))
         except sqlite3.IntegrityError:
             flash("Esse horário já foi reservado. Escolha outro.")
             return redirect(url_for("home"))
