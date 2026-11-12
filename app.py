@@ -3,6 +3,17 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from datetime import datetime, date, timedelta
 import sqlite3, os
+import requests
+
+TELEGRAM_TOKEN = "9089939507:AAH9j4QrWJe3mSJ_lhbwUy-E68WLPAltoCQ"
+TELEGRAM_CHAT_ID = "7309218518"
+
+def enviar_telegram(mensagem):
+    try:
+        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+        requests.post(url, json={"chat_id": TELEGRAM_CHAT_ID, "text": mensagem}, timeout=5)
+    except:
+        pass
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "TROQUE-ESTA-CHAVE-ANTES-DE-PUBLICAR")
@@ -133,6 +144,7 @@ def book():
         except sqlite3.IntegrityError:
             flash("Esse horário já foi reservado. Escolha outro.")
             return redirect(url_for("home"))
+            enviar_telegram(f"✂️ NOVO AGENDAMENTO - JS CORTES\n\n👤 Nome: {name}\n📞 Telefone: {phone}\n📅 Data: {day} as {time}\n💳 Pagamento: {payment_method}")
     return render_template("success.html", name=name, day=day, time=time)
 
 @app.route("/admin/login", methods=["GET", "POST"])
