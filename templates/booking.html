@@ -10,7 +10,7 @@
 <button>Confirmar agendamento</button></form></section>
 <script>
 const day=document.getElementById('day'),time=document.getElementById('time');
-
+flatpickr(day,{allowInput:true,clickOpens:true,locale:"pt",dateFormat:"Y-m-d",altInput:true,altFormat:"d/m/Y",minDate:"today",disable:[function(d){return d.getDay()===0;}],onChange:function(s,ds){day.value=ds;day.dispatchEvent(new Event('change'));}});
 day.addEventListener('change',async()=>
 if(new Date(day.value+'T12:00:00').getDay()===0){alert('Domingo não trabalhamos. Escolha outro dia!');day.value='';time.disabled=true;time.innerHTML='<option value="">Escolha primeiro a data</option>';return;}
 {time.disabled=true;time.innerHTML='<option>Carregando...</option>';
