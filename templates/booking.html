@@ -4,7 +4,7 @@
 <label>Seu nome<input name="customer_name" required maxlength="100" placeholder="Nome completo"></label>
 <label>Telefone (opcional)<input name="phone" maxlength="30" placeholder="(00) 00000-0000"></label>
 <label>Serviço<select name="service_id" required><option value="">Selecione</option>{% for s in services %}<option value="{{s.id}}">{{s.name}} — R$ {{'%.2f'|format(s.price)}}</option>{% endfor %}</select></label>
-<label>Data<input type="text" name="appointment_date" id="day" min="{{today}}" required></label>
+<label>Data<input type="text" readonly name="appointment_date" id="day" min="{{today}}" required></label>
 <label>Horários disponíveis<select name="appointment_time" id="time" required disabled><option value="">Escolha primeiro a data</option></select></label>
 <label>Forma de pagamento<select name="payment_method" required><option value="">Selecione como vai pagar</option><option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option></select></label>
 <button>Confirmar agendamento</button></form></section>
