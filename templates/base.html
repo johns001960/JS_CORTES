@@ -1,5 +1,5 @@
 <!doctype html><html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}JS CORTES{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<title>{% block title %}JS CORTES{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"><script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js"></script><script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script></head>
 <body><header><a class="brand" href="/">💈 JS CORTES</a>{% if session.get('admin_id') %}<a href="/admin/sair">Sair</a>{% endif %}</header>
 <main>{% with messages=get_flashed_messages() %}{% if messages %}<div class="notice">{% for m in messages %}<p>{{m}}</p>{% endfor %}</div>{% endif %}{% endwith %}
 {% block content %}{% endblock %}</main><footer>JS CORTES · Agendamento online</footer></body></html>
