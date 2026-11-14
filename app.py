@@ -5,7 +5,7 @@ from datetime import datetime, date, timedelta
 import sqlite3, os
 import requests
 
-TELEGRAM_TOKEN = "9089939507:AAH9j4QrWJe3mSJ_lhbwUy-E68WLPAltoCQ"
+TELEGRAM_TOKEN = "9089939507:AAFKBpF_LxYczeOZ4gajFf2osUzbcV4EWkE"
 TELEGRAM_CHAT_ID = "7309218518"
 
 def enviar_telegram(mensagem):
@@ -144,7 +144,7 @@ def book():
         except sqlite3.IntegrityError:
             flash("Esse horário já foi reservado. Escolha outro.")
             return redirect(url_for("home"))
-            enviar_telegram(f"✂️ NOVO AGENDAMENTO - JS CORTES\n\n👤 Nome: {name}\n📞 Telefone: {phone}\n📅 Data: {day} as {time}\n💳 Pagamento: {payment_method}")
+    enviar_telegram(f"NOVO AGENDAMENTO - Nome: {name} - Telefone: {phone} - Data: {day} as {time} - Pagamento: {payment_method}")
     return render_template("success.html", name=name, day=day, time=time)
 
 @app.route("/admin/login", methods=["GET", "POST"])
@@ -174,23 +174,28 @@ def dashboard():
     month_start = today.replace(day=1)
     with db() as con:
         services = con.execute("SELECT * FROM services ORDER BY name").fetchall()
-        appointments = con.execute("""
-            SELECT a.*, s.name AS service_name, s.price AS service_price
-            FROM appointments a JOIN services s ON s.id=a.service_id
-            ORDER BY a.appointment_date DESC, a.appointment_time DESC
-        """).fetchall()
-        def total(start, end):
+        search = request.args.get("q", "").strip()
+        date_filter = request.args.get("data", "").strip()
+    query = """
+        SELECT a.*, s.name AS service_name, s.price AS service_price
+        FROM appointments a JOIN services s ON s.id=a.service_id
+        WHERE (? = '' OR a.customer_name LIKE '%' || ? || '%' OR a.phone LIKE '%' || ? || '%')
+        AND (? = '' OR a.appointment_date = ?)
+        ORDER BY a.appointment_date DESC, a.appointment_time DESC
+    """
+    appointments = con.execute(query, (search, search, search, date_filter, date_filter)).fetchall()
+    def total(start, end):
             row = con.execute("""
                 SELECT COALESCE(SUM(amount_paid),0) AS total FROM appointments
                 WHERE status='Concluído' AND appointment_date BETWEEN ? AND ?
             """, (start.isoformat(), end.isoformat())).fetchone()
             return row["total"]
-        day_total = total(today, today)
-        week_total = total(week_start, today)
-        month_total = total(month_start, today)
+    day_total = total(today, today)
+    week_total = total(week_start, today)
+    month_total = total(month_start, today)
     return render_template("admin.html", appointments=appointments, services=services,
                            day_total=day_total, week_total=week_total, month_total=month_total,
-                           today=today.isoformat())
+                           today=today.isoformat(),search=search, date_filter=date_filter)
 
 @app.route("/admin/agendamento/<int:appointment_id>/editar", methods=["GET", "POST"])
 @admin_required

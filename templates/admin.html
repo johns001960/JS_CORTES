@@ -4,8 +4,15 @@
 <div class="stat"><span>Recebido nesta semana</span><strong>R$ {{'%.2f'|format(week_total)}}</strong></div>
 <div class="stat"><span>Recebido neste mês</span><strong>R$ {{'%.2f'|format(month_total)}}</strong></div></div>
 <section class="panel"><h2>Agendamentos</h2><p class="muted">Você pode editar os dados, reagendar, trocar o cliente, concluir, cancelar ou excluir um agendamento.</p>
-<div class="table-wrap"><table><thead><tr><th>Data / hora</th><th>Cliente</th><th>Serviço</th><th>Status e recebimento</th><th>Gerenciar</th></tr></thead><tbody>
-{% for a in appointments %}<tr><td>{{a.appointment_date}}<br>{{a.appointment_time}}</td><td>{{a.customer_name}}<br><small>{{a.phone or ''}}</small></td><td>{{a.service_name}}</td>
+<form method="get" action="/admin" style="display:flex; gap:8px; margin:12px 0; flex-wrap:wrap;">
+  <input name="q" value="{{ search }}" placeholder="Pesquisar por nome ou telefone..." style="flex:1; padding:8px;">
+  <input type="date" name="data" value="{{ date_filter }}" style="padding:8px;">
+  <button type="submit" style="padding:8px 16px;">Pesquisar</button>
+  <a href="/admin" style="padding:8px 12px; background:#eee; border-radius:6px; text-decoration:none; color:#000;">Limpar</a>
+</form>
+
+    <div class="table-wrap"><table><thead><tr><th>Data / hora</th><th>Cliente</th><th>Serviço</th><th>Status e recebimento</th><th>Gerenciar</th></tr></thead><tbody>
+    {% for a in appointments %}<tr><td>{{a.appointment_date}}<br>{{a.appointment_time}}</td><td>{{a.customer_name}}<br><small>{{a.phone or ''}}</small></td><td>{{a.service_name}}</td>
 <td><form class="stack-form" method="post" action="/admin/agendamento/{{a.id}}/atualizar">
 <select name="status">{% for st in ['Agendado','Concluído','Cancelado'] %}<option {% if a.status==st %}selected{% endif %}>{{st}}</option>{% endfor %}</select>
 <input name="amount_paid" type="number" min="0" step="0.01" value="{{'%.2f'|format(a.amount_paid)}}" aria-label="Valor recebido" placeholder="Valor recebido">
