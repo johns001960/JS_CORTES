@@ -10,7 +10,9 @@
 <button>Confirmar agendamento</button></form></section>
 <script>
 const day=document.getElementById('day'),time=document.getElementById('time');
-day.addEventListener('change',async()=>{time.disabled=true;time.innerHTML='<option>Carregando...</option>';
+day.addEventListener('change',async()=>
+if(new Date(day.value+'T12:00:00').getDay()===0){alert('Domingo não trabalhamos. Escolha outro dia!');day.value='';time.disabled=true;time.innerHTML='<option value="">Escolha primeiro a data</option>';return;}
+{time.disabled=true;time.innerHTML='<option>Carregando...</option>';
 const r=await fetch('/horarios?date='+encodeURIComponent(day.value));const d=await r.json();time.innerHTML='';
 if(!d.times.length){time.innerHTML='<option value="">Nenhum horário disponível</option>';}
 else{time.innerHTML='<option value="">Selecione um horário</option>';d.times.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;time.appendChild(o);});time.disabled=false;}});
