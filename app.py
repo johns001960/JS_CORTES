@@ -241,7 +241,7 @@ def delete_appointment(appointment_id):
         elif row["status"] == "Concluído":
             flash("Este atendimento já foi concluído. Cancele a exclusão para preservar o histórico financeiro.")
         else:
-            con.execute("DELETE FROM appointments WHERE id=?", (appointment_id,))
+            con.execute("UPDATE appointments SET status='Excluido' WHERE id=?", (appointment_id,))
             flash("Agendamento excluído. O horário foi liberado.")
     return redirect(url_for("dashboard"))
 
@@ -284,13 +284,6 @@ def update_appointment(appointment_id):
     flash("Agendamento atualizado.")
     return redirect(url_for("dashboard"))
 
-    @app.route("/admin/agendamento/<int:appointment_id>/excluir", methods=["POST"])
-@admin_required
-def delete_appointment(appointment_id):
-    with db() as con:
-        con.execute("UPDATE appointments SET status='Excluído' WHERE id=?", (appointment_id,))
-    flash("Agendamento excluído e movido para o histórico.")
-    return redirect(url_for("dashboard"))
 
 @app.route("/admin/servico", methods=["POST"])
 @admin_required
