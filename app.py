@@ -183,9 +183,9 @@ def dashboard():
         AND (? = '' OR a.appointment_date = ?)
         ORDER BY a.appointment_date DESC, a.appointment_time DESC
     """
-appointments = con.execute(query, (search, search, search, date_filter, date_filter)).fetchall()
-active_appointments = [a for a in appointments if a["status"] not in ("Concluído", "Cancelado")]
-history_appointments = [a for a in appointments if a["status"] in ("Concluído", "Cancelado")]
+    appointments = con.execute(query, (search, search, search, date_filter, date_filter)).fetchall()
+    active_appointments = [a for a in appointments if a["status"] not in ("Concluído", "Cancelado")]
+    history_appointments = [a for a in appointments if a["status"] in ("Concluído", "Cancelado")]
     def total(start, end):
             row = con.execute("""
                 SELECT COALESCE(SUM(amount_paid),0) AS total FROM appointments
