@@ -184,8 +184,10 @@ def dashboard():
         ORDER BY a.appointment_date DESC, a.appointment_time DESC
     """
     appointments = con.execute(query, (search, search, search, date_filter, date_filter)).fetchall()
-    active_appointments = [a for a in appointments if a["status"] not in ("Concluído", "Cancelado")]
-    history_appointments = [a for a in appointments if a["status"] in ("Concluído", "Cancelado")]
+    show_all = request.args.get("ver_historico") == "tudo"
+    active_appointments = [a for a in appointments if a["status"] not in ("Concluído", "Cancelado", "Excluído")]
+    history_all = [a for a in appointments if a["status"] in ("Concluído", "Cancelado", "Excluído")]
+    history_appointments = history_all if show_all else history_all[:5]
     def total(start, end):
             row = con.execute("""
                 SELECT COALESCE(SUM(amount_paid),0) AS total FROM appointments
@@ -197,6 +199,7 @@ def dashboard():
     month_total = total(month_start, today)
     return render_template("admin.html", appointments=appointments, active_appointments=active_appointments, history_appointments=history_appointments, services=services,
                            day_total=day_total, week_total=week_total, month_total=month_total,
+                           history_all=history_all, show_all=show_all,
                            today=today.isoformat(),search=search, date_filter=date_filter)
 
 @app.route("/admin/agendamento/<int:appointment_id>/editar", methods=["GET", "POST"])
@@ -279,6 +282,14 @@ def update_appointment(appointment_id):
                        WHERE id=?""", (status, amount if status == "Concluído" else 0,
                                         method, appointment_id))
     flash("Agendamento atualizado.")
+    return redirect(url_for("dashboard"))
+
+    @app.route("/admin/agendamento/<int:appointment_id>/excluir", methods=["POST"])
+@admin_required
+def delete_appointment(appointment_id):
+    with db() as con:
+        con.execute("UPDATE appointments SET status='Excluído' WHERE id=?", (appointment_id,))
+    flash("Agendamento excluído e movido para o histórico.")
     return redirect(url_for("dashboard"))
 
 @app.route("/admin/servico", methods=["POST"])
