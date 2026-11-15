@@ -245,6 +245,22 @@ def delete_appointment(appointment_id):
             flash("Agendamento excluído. O horário foi liberado.")
     return redirect(url_for("dashboard"))
 
+@app.route("/admin/agendamento/<int:appointment_id>/excluir-historico", methods=["POST"])
+@admin_required
+def delete_history_item(appointment_id):
+    with db() as con:
+        con.execute("DELETE FROM appointments WHERE id=?", (appointment_id,))
+        con.commit()
+    return redirect(url_for("dashboard"))
+
+@app.route("/admin/historico/limpar", methods=["POST"])
+@admin_required
+def clear_history():
+    with db() as con:
+        con.execute("DELETE FROM appointments WHERE status IN ('Concluído', 'Cancelado', 'Excluído')")
+        con.commit()
+    return redirect(url_for("dashboard"))
+
 @app.route("/admin/agendamento/<int:appointment_id>/trocar-cliente", methods=["POST"])
 @admin_required
 def replace_customer(appointment_id):
