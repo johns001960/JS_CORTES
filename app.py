@@ -125,8 +125,8 @@ def book():
     day = request.form.get("appointment_date", "")
     time = request.form.get("appointment_time", "")
     payment_method = request.form.get("payment_method", "Pix").strip()
-    if not name or not service_id or not day or not time:
-        flash("Preencha nome, serviço, data e horário.")
+    if not name  or not phone or not service_id or not day or not time:
+        flash("Preencha  telefone, nome, serviço, data e horário.")
         return redirect(url_for("home"))
     if not valid_date(day):
         flash("Escolha uma data válida, a partir de hoje.")
