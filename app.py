@@ -187,7 +187,7 @@ def dashboard():
     show_all = request.args.get("ver_historico") == "tudo"
     active_appointments = [a for a in appointments if a["status"] not in ("Concluído", "Cancelado", "Excluído")]
     history_all = [a for a in appointments if a["status"] in ("Concluído", "Cancelado", "Excluído")]
-    history_appointments = history_all if show_all else history_all[:5]
+    history_appointments = history_all if show_all else history_all[:3]
     def total(start, end):
             row = con.execute("""
                 SELECT COALESCE(SUM(amount_paid),0) AS total FROM appointments
