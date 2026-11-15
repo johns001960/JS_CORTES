@@ -184,6 +184,8 @@ def dashboard():
         ORDER BY a.appointment_date DESC, a.appointment_time DESC
     """
     appointments = con.execute(query, (search, search, search, date_filter, date_filter)).fetchall()
+        active_appointments = [a for a in appointments if a["status"] not in ("Concluído", "Cancelado")]
+        history_appointments = [a for a in appointments if a["status"] in ("Concluído", "Cancelado")]
     def total(start, end):
             row = con.execute("""
                 SELECT COALESCE(SUM(amount_paid),0) AS total FROM appointments
@@ -193,7 +195,7 @@ def dashboard():
     day_total = total(today, today)
     week_total = total(week_start, today)
     month_total = total(month_start, today)
-    return render_template("admin.html", appointments=appointments, services=services,
+    return render_template("admin.html", appointments=appointments, active_appointments=active_appointments, history_appointments=history_appointments, services=services,
                            day_total=day_total, week_total=week_total, month_total=month_total,
                            today=today.isoformat(),search=search, date_filter=date_filter)
 
