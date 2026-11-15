@@ -241,7 +241,7 @@ def delete_appointment(appointment_id):
         elif row["status"] == "Concluído":
             flash("Este atendimento já foi concluído. Cancele a exclusão para preservar o histórico financeiro.")
         else:
-            con.execute("UPDATE appointments SET status='Excluido' WHERE id=?", (appointment_id,))
+            con.execute("UPDATE appointments SET status='Excluído' WHERE id=?", (appointment_id,))
             flash("Agendamento excluído. O horário foi liberado.")
     return redirect(url_for("dashboard"))
 
