@@ -254,7 +254,7 @@ def admin_calendar():
                 flash("Bloqueio removido!")
             con.commit()
             return redirect(url_for("admin_calendar"))
-                with db() as con:
+            with db() as con:
             all_blocked = con.execute("SELECT * FROM blocked_days ORDER BY date, weekday").fetchall()
             blocked_weekdays = []
             for r in all_blocked:
