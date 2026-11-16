@@ -112,12 +112,12 @@ def available_times():
         datetime.strptime(day, "%Y-%m-%d")
     except ValueError:
         return {"times": []}
-            # TRAVA DO CALENDARIO - se o dia estiver bloqueado, nao mostra nenhum horario
+     # TRAVA DO CALENDARIO - se o dia estiver bloqueado, nao mostra nenhum horario
     _wd = datetime.strptime(day, "%Y-%m-%d").weekday()
-        with db() as con:
-        blocked = con.execute("SELECT id FROM blocked_days WHERE date=? OR weekday=?", (day, _wd)).fetchone()
-        if blocked:
-            return {"times": []}
+    with db() as con:
+    blocked = con.execute("SELECT id FROM blocked_days WHERE date=? OR weekday=?", (day, _wd)).fetchone()
+    if blocked:
+    return {"times": []}
     with db() as con:
         booked = con.execute("""
             SELECT appointment_time FROM appointments
