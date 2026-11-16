@@ -340,7 +340,7 @@ def clear_history():
         con.commit()
     return redirect(url_for("dashboard"))
 
-    @app.route("/admin/historico/limpar-mes", methods=["POST"])
+@app.route("/admin/historico/limpar-mes", methods=["POST"])
 @admin_required
 def limpar_historico_mes():
     mes_titulo = request.form.get("mes_titulo", "")
