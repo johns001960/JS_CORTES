@@ -3,6 +3,7 @@
 <div class="stats"><div class="stat"><span>Recebido hoje</span><strong>R$ {{'%.2f'|format(day_total)}}</strong></div>
 <div class="stat"><span>Recebido nesta semana</span><strong>R$ {{'%.2f'|format(week_total)}}</strong></div>
 <div class="stat"><span>Recebido neste mês</span><strong>R$ {{'%.2f'|format(month_total)}}</strong></div></div>
+<p style="margin:12px 0;"><a href="/admin/calendario" style="display:inline-block; padding:10px 18px; background:#111; color:#fff; border-radius:8px; text-decoration:none; font-weight:bold;">📅 Gerenciar Calendário - Bloquear dias</a></p>
 <section class="panel"><h2>Agendamentos</h2><p class="muted">Você pode editar os dados, reagendar, trocar o cliente, concluir, cancelar ou excluir um agendamento.</p>
 <form method="get" action="/admin" style="display:flex; gap:8px; margin:12px 0; flex-wrap:wrap;">
   <input name="q" value="{{ search }}" placeholder="Pesquisar por nome ou telefone..." style="flex:1; padding:8px;">

@@ -10,9 +10,9 @@
 <button>Confirmar agendamento</button></form></section>
 <script>
 const day=document.getElementById('day'),time=document.getElementById('time');
-flatpickr(day,{allowInput:true,clickOpens:true,locale:"pt",dateFormat:"Y-m-d",altInput:true,altFormat:"d/m/Y",minDate:"today",disable:[function(d){return d.getDay()===0;}],onChange:async function(s,ds){
+flatpickr(day,{allowInput:true,clickOpens:true,locale:"pt",dateFormat:"Y-m-d",altInput:true,altFormat:"d/m/Y",minDate:"today",onChange:async function(s,ds){
 if(!ds) return;
-if(new Date(ds+'T12:00:00').getDay()===0){alert('Domingo não trabalhamos. Escolha outro dia!');day.value='';time.disabled=true;time.innerHTML='<option value="">Escolha primeiro a data</option>';return;}
+
 time.disabled=true;time.innerHTML='<option>Carregando...</option>';
 const r=await fetch('/horarios?date='+encodeURIComponent(ds));const d=await r.json();time.innerHTML='';
 if(!d.times.length){time.innerHTML='<option value="">Nenhum horário disponível</option>';}

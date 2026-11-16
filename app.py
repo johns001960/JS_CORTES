@@ -63,6 +63,12 @@ def init_db():
 
                
         WHERE status != 'Cancelado';
+        CREATE TABLE IF NOT EXISTS blocked_days (
+    id INTEGER PRIMARY KEY,
+    date TEXT,
+    weekday INTEGER,
+    reason TEXT
+);
         """)
         for name in ["Pix", "Dinheiro", "Cartão"]:
                 con.execute("INSERT OR IGNORE INTO payment_methods (name, active) VALUES (?, 1)", (name,))
@@ -106,6 +112,14 @@ def available_times():
         datetime.strptime(day, "%Y-%m-%d")
     except ValueError:
         return {"times": []}
+            # TRAVA DO CALENDARIO - se o dia estiver bloqueado, nao mostra nenhum horario
+    try:
+        _wd = datetime.strptime(day, "%Y-%m-%d").weekday()
+    except:
+        _wd = -1
+    with db() as con:
+        if con.execute("SELECT id FROM blocked_days WHERE date=? OR weekday=?", (day, _wd)).fetchone():
+            return {"times": []}
     with db() as con:
         booked = con.execute("""
             SELECT appointment_time FROM appointments
@@ -131,6 +145,17 @@ def book():
     if not valid_date(day):
         flash("Escolha uma data válida, a partir de hoje.")
         return redirect(url_for("home"))
+            # TRAVA DO CALENDARIO - se o dia estiver bloqueado, nao deixa agendar
+    try:
+        from datetime import datetime as _dt
+        _weekday = _dt.strptime(day, "%Y-%m-%d").weekday()
+    except:
+        _weekday = -1
+    with db() as con:
+        _blocked = con.execute("SELECT id FROM blocked_days WHERE date=? OR weekday=?", (day, _weekday)).fetchone()
+        if _blocked:
+            flash("Esse dia esta bloqueado. Escolha outra data!")
+            return redirect(url_for("home"))
     with db() as con:
         service = con.execute("SELECT id, price FROM services WHERE id=? AND active=1", (service_id,)).fetchone()
         if not service:
@@ -201,6 +226,39 @@ def dashboard():
                            day_total=day_total, week_total=week_total, month_total=month_total,
                            history_all=history_all, show_all=show_all,
                            today=today.isoformat(),search=search, date_filter=date_filter)
+
+@app.route("/admin/calendario", methods=["GET", "POST"])
+@admin_required
+def admin_calendar():
+    with db() as con:
+        if request.method == "POST":
+            action = request.form.get("action")
+            if action == "weekday":
+                weekday = request.form.get("weekday")
+                if weekday is not None and weekday != "":
+                    weekday = int(weekday)
+                    exists = con.execute("SELECT id FROM blocked_days WHERE weekday=?", (weekday,)).fetchone()
+                    if exists:
+                        con.execute("DELETE FROM blocked_days WHERE weekday=?", (weekday,))
+                        flash("Dia da semana desbloqueado!")
+                    else:
+                        con.execute("INSERT INTO blocked_days (weekday) VALUES (?)", (weekday,))
+                        flash("Dia da semana bloqueado!")
+            elif action == "date":
+                date_value = request.form.get("date")
+                if date_value:
+                    exists = con.execute("SELECT id FROM blocked_days WHERE date=?", (date_value,)).fetchone()
+                    if not exists:
+                        con.execute("INSERT INTO blocked_days (date) VALUES (?)", (date_value,))
+                        flash("Dia bloqueado!")
+            elif action == "delete":
+                block_id = request.form.get("block_id")
+                con.execute("DELETE FROM blocked_days WHERE id=?", (block_id,))
+                flash("Bloqueio removido!")
+            con.commit()
+            return redirect(url_for("admin_calendar"))
+        blocked = con.execute("SELECT * FROM blocked_days ORDER BY date, weekday").fetchall()
+    return render_template("admin_calendar.html", blocked=blocked)
 
 @app.route("/admin/agendamento/<int:appointment_id>/editar", methods=["GET", "POST"])
 @admin_required
