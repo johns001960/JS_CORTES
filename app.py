@@ -207,7 +207,7 @@ def dashboard():
         ORDER BY a.appointment_date DESC, a.appointment_time DESC
     """
     appointments = con.execute(query, (search, search, search, date_filter, date_filter)).fetchall()
-    show_all = request.args.get("ver_historico") == "tudo"
+    show_all = request.args.get("ver_historico") == "tudo" or request.args.get("show_all") in ("1", "tudo", "true")
     active_appointments = [a for a in appointments if a["status"] not in ("Concluído", "Cancelado", "Excluído")]
     history_all = [a for a in appointments if a["status"] in ("Concluído", "Cancelado", "Excluído")]
     history_appointments = history_all if show_all else history_all[:3]
