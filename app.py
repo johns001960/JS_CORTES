@@ -214,7 +214,7 @@ def dashboard():
     history_appointments = history_all if show_all else history_all[:3]
     meses = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"}
     history_by_month = {}
-    for a in history_all:
+    for a in history_appointments:
         ano_mes = a["appointment_date"][:7]
         ano = ano_mes[:4]
         mes = ano_mes[5:7]
