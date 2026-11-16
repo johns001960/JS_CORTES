@@ -255,8 +255,15 @@ def admin_calendar():
             con.commit()
             return redirect(url_for("admin_calendar"))
             all_blocked = con.execute("SELECT * FROM blocked_days ORDER BY date, weekday").fetchall()
-            blocked_weekdays = [r["weekday"] for r in all_blocked if r["weekday"] is not None]
-            return render_template("admin_calendar.html", blocked=all_blocked, blocked_weekdays=blocked_weekdays)
+            blocked_weekdays = []
+            for r in all_blocked:
+                try:
+                    w = r["weekday"]
+                except:
+                    w = r[2]
+                if w is not None:
+                    blocked_weekdays.append(w)
+        return render_template("admin_calendar.html", blocked=all_blocked, blocked_weekdays=blocked_weekdays)
 
 @app.route("/admin/agendamento/<int:appointment_id>/editar", methods=["GET", "POST"])
 @admin_required
