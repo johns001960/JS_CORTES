@@ -211,6 +211,16 @@ def dashboard():
     active_appointments = [a for a in appointments if a["status"] not in ("Concluído", "Cancelado", "Excluído")]
     history_all = [a for a in appointments if a["status"] in ("Concluído", "Cancelado", "Excluído")]
     history_appointments = history_all if show_all else history_all[:3]
+    meses = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"}
+    history_by_month = {}
+    for a in history_all:
+        ano_mes = a["appointment_date"][:7]
+        ano = ano_mes[:4]
+        mes = ano_mes[5:7]
+        titulo = f"{meses.get(mes, mes)} de {ano}"
+        if titulo not in history_by_month:
+            history_by_month[titulo] = []
+        history_by_month[titulo].append(a)
     def total(start, end):
             row = con.execute("""
                 SELECT COALESCE(SUM(amount_paid),0) AS total FROM appointments
@@ -222,6 +232,7 @@ def dashboard():
     month_total = total(month_start, today)
     return render_template("admin.html", appointments=appointments, active_appointments=active_appointments, history_appointments=history_appointments, services=services,
                            day_total=day_total, week_total=week_total, month_total=month_total,
+                           history_by_month=history_by_month,
                            history_all=history_all, show_all=show_all,
                            today=today.isoformat(),search=search, date_filter=date_filter)
 
