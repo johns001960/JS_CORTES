@@ -208,6 +208,7 @@ def dashboard():
     """
     appointments = con.execute(query, (search, search, search, date_filter, date_filter)).fetchall()
     show_all = request.args.get("ver_historico") == "tudo" or request.args.get("show_all") in ("1", "tudo", "true")
+    mes_filtro = request.args.get("mes_filtro", "")
     active_appointments = [a for a in appointments if a["status"] not in ("Concluído", "Cancelado", "Excluído")]
     history_all = [a for a in appointments if a["status"] in ("Concluído", "Cancelado", "Excluído")]
     history_appointments = history_all if show_all else history_all[:3]
@@ -233,7 +234,7 @@ def dashboard():
     return render_template("admin.html", appointments=appointments, active_appointments=active_appointments, history_appointments=history_appointments, services=services,
                            day_total=day_total, week_total=week_total, month_total=month_total,
                            history_by_month=history_by_month,
-                           history_all=history_all, show_all=show_all,
+                           history_all=history_all, show_all=show_all, mes_filtro=mes_filtro,
                            today=today.isoformat(),search=search, date_filter=date_filter)
 
 @app.route("/admin/calendario", methods=["GET", "POST"])
@@ -336,6 +337,21 @@ def delete_history_item(appointment_id):
 def clear_history():
     with db() as con:
         con.execute("DELETE FROM appointments WHERE status IN ('Concluído', 'Cancelado', 'Excluído')")
+        con.commit()
+    return redirect(url_for("dashboard"))
+
+    @app.route("/admin/historico/limpar-mes", methods=["POST"])
+@admin_required
+def limpar_historico_mes():
+    mes_titulo = request.form.get("mes_titulo", "")
+    meses_nomes = {"Janeiro": "01", "Fevereiro": "02", "Março": "03", "Abril": "04", "Maio": "05", "Junho": "06", "Julho": "07", "Agosto": "08", "Setembro": "09", "Outubro": "10", "Novembro": "11", "Dezembro": "12"}
+    try:
+        nome, ano = mes_titulo.rsplit(" de ", 1)
+        mes_str = f"{int(ano.strip()):04d}-{meses_nomes[nome.strip()]}"
+    except Exception:
+        return redirect(url_for("dashboard"))
+    with db() as con:
+        con.execute("DELETE FROM appointments WHERE status IN ('Concluído', 'Cancelado', 'Excluído') AND substr(appointment_date, 1, 7) = ?", (mes_str,))
         con.commit()
     return redirect(url_for("dashboard"))
 
