@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% block title %}Calendário · JS CORTES{% endblock %}{% block content %}
 <section class="hero"><p class="eyebrow">PAINEL PRIVADO</p><h1>Gerenciar Calendário</h1><p>Bloqueie dias da semana ou um dia só. O cliente vai ver o dia cinza, sem conseguir clicar.</p></section>
-<section class="panel"><h2>1. Bloquear dia da semana</h2><p class="muted">Se você bloquear a Terça, TODA terça fica bloqueada. Clique de novo pra desbloquear.</p>
+<section class="panel"><h2>1. Bloquear dia do mês </h2><p class="muted">Se você bloquear a Terça, TODA terça fica bloqueada. Clique de novo pra desbloquear.</p>
 {% set dias = [(0,'Segunda'),(1,'Terça'),(2,'Quarta'),(3,'Quinta'),(4,'Sexta'),(5,'Sábado'),(6,'Domingo')] %}
 {% for num, nome in dias %}
   {% set bloqueado = false %}
