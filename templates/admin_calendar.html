@@ -3,14 +3,12 @@
 <section class="panel"><h2>1. Bloquear dia do mês </h2><p class="muted">Se você bloquear a Terça, TODA terça fica bloqueada. Clique de novo pra desbloquear.</p>
 {% set dias = [(0,'Segunda'),(1,'Terça'),(2,'Quarta'),(3,'Quinta'),(4,'Sexta'),(5,'Sábado'),(6,'Domingo')] %}
 {% for num, nome in dias %}
-  {% set bloqueado = false %}
-  {% for b in blocked %}{% if b.weekday == num %}{% set bloqueado = true %}{% endif %}{% endfor %}
-  <form method="post" style="display:flex; gap:8px; align-items:center; margin:8px 0;">
-    <input type="hidden" name="action" value="weekday">
-    <input type="hidden" name="weekday" value="{{ num }}">
-    <span style="flex:1;">{{ nome }} {% if bloqueado %}🔒 Bloqueado{% else %}✅ Livre{% endif %}</span>
-    <button type="submit" style="padding:8px 16px;">{% if bloqueado %}Desbloquear{% else %}Bloquear{% endif %}</button>
-  </form>
+<form method="post" style="display:flex; gap:8px; align-items:center; margin:8px 0;">
+<input type="hidden" name="action" value="weekday">
+<input type="hidden" name="weekday" value="{{ num }}">
+<span style="flex:1;">{{ nome }} {% if num in blocked_weekdays %}🔒 Bloqueado{% else %}✅ Livre{% endif %}</span>
+<button type="submit" style="padding:8px 16px;">{% if num in blocked_weekdays %}Desbloquear{% else %}Bloquear{% endif %}</button>
+</form>
 {% endfor %}
 </section>
 <section class="panel"><h2>2. Bloquear um dia só</h2><p class="muted">Ex: Sábado dia 21. Só esse dia bloqueia, os outros sábados continuam normais.</p>
