@@ -254,16 +254,16 @@ def admin_calendar():
                 flash("Bloqueio removido!")
             con.commit()
             return redirect(url_for("admin_calendar"))
-            with db() as con:
-                all_blocked = con.execute("SELECT * FROM blocked_days ORDER BY date, weekday").fetchall()
-                blocked_weekdays = []
-                for r in all_blocked:
-                    try:
-                        w = r["weekday"]
-                    except:
-                        w = r[2]
-                    if w is not None:
-                        blocked_weekdays.append(w)
+        with db() as con:
+            all_blocked = con.execute("SELECT * FROM blocked_days ORDER BY date, weekday").fetchall()
+            blocked_weekdays = []
+            for r in all_blocked:
+                try:
+                    w = r["weekday"]
+                except:
+                    w = r[2]
+                if w is not None:
+                    blocked_weekdays.append(w)
         return render_template("admin_calendar.html", blocked=all_blocked, blocked_weekdays=blocked_weekdays)
 
 @app.route("/admin/agendamento/<int:appointment_id>/editar", methods=["GET", "POST"])
