@@ -331,8 +331,9 @@ def admin_calendar():
                     w = r[2]
                 if w is not None:
                     blocked_weekdays.append(int(w))
-                if request.method == "POST":
+        if request.method == "POST":
             return redirect(url_for("admin_calendar"))
+               
         return render_template("admin_calendar.html", blocked=all_blocked, blocked_weekdays=blocked_weekdays, blocked_times=all_blocked_times)
 
 @app.route("/admin/agendamento/<int:appointment_id>/editar", methods=["GET", "POST"])
