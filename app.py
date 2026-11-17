@@ -124,6 +124,11 @@ def available_times():
             WHERE appointment_date=? AND status != 'Cancelado'
         """, (day,)).fetchall()
     occupied = {r["appointment_time"] for r in booked}
+    try:
+        blocked_list = [r["time"] for r in con.execute("SELECT time FROM blocked_times WHERE date=?", (day,)).fetchall()]
+    except:
+        blocked_list = []
+    occupied = occupied + blocked_list
     # Altere esta lista para ajustar os horários de atendimento da barbearia.
     slots = ["09:00", "10:00", "11:00",
          "13:00", "14:00", "15:00", "16:00", "17:00"]
@@ -261,25 +266,44 @@ def admin_calendar():
                     if not exists:
                         con.execute("INSERT INTO blocked_days (date) VALUES (?)", (date_value,))
                         flash("Dia bloqueado!")
-            elif action == "delete":
+            elif action == "block_time":
+                date_value = request.form.get("date")
+                time_value = request.form.get("time")
+                if date_value and time_value:
+                    con.execute("CREATE TABLE IF NOT EXISTS blocked_times (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, time TEXT)")
+                    exists = con.execute("SELECT id FROM blocked_times WHERE date=? AND time=?", (date_value, time_value)).fetchone()
+                    if not exists:
+                        con.execute("INSERT INTO blocked_times (date, time) VALUES (?, ?)", (date_value, time_value))
+                        flash("Horário bloqueado!")
+        elif action == "delete_time":
+                block_id = request.form.get("block_id")
+                con.execute("DELETE FROM blocked_times WHERE id=?", (block_id,))
+                flash("Bloqueio de horário removido!")
+        elif action == "delete":
                 block_id = request.form.get("block_id")
                 con.execute("DELETE FROM blocked_days WHERE id=?", (block_id,))
                 flash("Bloqueio removido!")
-            con.commit()
-            return redirect(url_for("admin_calendar"))
+        con.commit()
+        return redirect(url_for("admin_calendar"))
+            
         with db() as con:
             all_blocked = con.execute("SELECT * FROM blocked_days ORDER BY date, weekday").fetchall()
+        try:
+            con.execute("CREATE TABLE IF NOT EXISTS blocked_times (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, time TEXT)")
+            all_blocked_times = con.execute("SELECT * FROM blocked_times ORDER BY date, time").fetchall()
+        except:
+            all_blocked_times = []
             blocked_weekdays = []
 
           
-            for r in all_blocked:
+        for r in all_blocked:
                 try:
                     w = r["weekday"]
                 except:
                     w = r[2]
                 if w is not None:
                     blocked_weekdays.append(int(w))
-        return render_template("admin_calendar.html", blocked=all_blocked, blocked_weekdays=blocked_weekdays)
+        return render_template("admin_calendar.html", blocked=all_blocked, blocked_weekdays=blocked_weekdays, blocked_times=all_blocked_times)
 
 @app.route("/admin/agendamento/<int:appointment_id>/editar", methods=["GET", "POST"])
 @admin_required

@@ -27,5 +27,22 @@
 </form>
 {% endif %}{% endfor %}
 </section>
+<section class="panel"><h2>3. Bloquear um horário só</h2><p class="muted">Ex: Dia 21 às 14:00. Só esse horário bloqueia, o resto do dia continua livre.</p>
+<form method="post" style="display:flex; gap:8px; flex-wrap:wrap;">
+<input type="hidden" name="action" value="block_time">
+<input type="date" name="date" required style="padding:8px;">
+<input type="time" name="time" required style="padding:8px;">
+<button type="submit" style="padding:8px 16px;">Bloquear esse horário</button>
+</form>
+<h3 style="margin-top:20px;">Horários bloqueados:</h3>
+{% for b in blocked_times %}
+<form method="post" style="display:flex; gap:8px; align-items:center; margin:6px 0;">
+<input type="hidden" name="action" value="delete_time">
+<input type="hidden" name="block_id" value="{{ b.id }}">
+<span style="flex:1;">📅 {{ b.date }} - {{ b.time }} - Bloqueado</span>
+<button type="submit" style="padding:6px 12px;">Desbloquear / Apagar</button>
+</form>
+{% endfor %}
+</section>
 <p style="margin:16px 0;"><a href="/admin">← Voltar pro Painel</a></p>
 {% endblock %}
