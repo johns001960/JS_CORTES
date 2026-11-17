@@ -32,13 +32,13 @@
 <input type="hidden" name="action" value="block_time">
 <label>Data inicial:<br><input type="date" name="date" required style="padding:8px;"></label>
 <div><b>Dias da semana:</b><br>
-<label><input type="checkbox" name="weekdays" value="0"> Seg</label>
-<label><input type="checkbox" name="weekdays" value="1"> Ter</label>
-<label><input type="checkbox" name="weekdays" value="2"> Qua</label>
-<label><input type="checkbox" name="weekdays" value="3"> Qui</label>
-<label><input type="checkbox" name="weekdays" value="4"> Sex</label>
-<label><input type="checkbox" name="weekdays" value="5"> Sab</label>
-<label><input type="checkbox" name="weekdays" value="6"> Dom</label></div>
+<label style="display:flex !important; justify-content:space-between !important; align-items:center !important; width:100% !important; max-width:420px !important; padding:12px 0 !important; border-bottom:1px solid #eee !important; font-size:16px !important; margin:0 !important;"><span>Seg</span><input type="checkbox" name="weekdays" value="0" style="width:26px !important; height:26px !important; min-width:26px !important; accent-color:#111 !important; margin:0 !important; cursor:pointer;"></label>
+<label style="display:flex !important; justify-content:space-between !important; align-items:center !important; width:100% !important; max-width:420px !important; padding:12px 0 !important; border-bottom:1px solid #eee !important; font-size:16px !important; margin:0 !important;"><span>Ter</span><input type="checkbox" name="weekdays" value="1" style="width:26px !important; height:26px !important; min-width:26px !important; accent-color:#111 !important; margin:0 !important; cursor:pointer;"></label>
+<label style="display:flex !important; justify-content:space-between !important; align-items:center !important; width:100% !important; max-width:420px !important; padding:12px 0 !important; border-bottom:1px solid #eee !important; font-size:16px !important; margin:0 !important;"><span>Qua</span><input type="checkbox" name="weekdays" value="2" style="width:26px !important; height:26px !important; min-width:26px !important; accent-color:#111 !important; margin:0 !important; cursor:pointer;"></label>
+<label style="display:flex !important; justify-content:space-between !important; align-items:center !important; width:100% !important; max-width:420px !important; padding:12px 0 !important; border-bottom:1px solid #eee !important; font-size:16px !important; margin:0 !important;"><span>Qui</span><input type="checkbox" name="weekdays" value="3" style="width:26px !important; height:26px !important; min-width:26px !important; accent-color:#111 !important; margin:0 !important; cursor:pointer;"></label>
+<label style="display:flex !important; justify-content:space-between !important; align-items:center !important; width:100% !important; max-width:420px !important; padding:12px 0 !important; border-bottom:1px solid #eee !important; font-size:16px !important; margin:0 !important;"><span>Sex</span><input type="checkbox" name="weekdays" value="4" style="width:26px !important; height:26px !important; min-width:26px !important; accent-color:#111 !important; margin:0 !important; cursor:pointer;"></label>
+<label style="display:flex !important; justify-content:space-between !important; align-items:center !important; width:100% !important; max-width:420px !important; padding:12px 0 !important; border-bottom:1px solid #eee !important; font-size:16px !important; margin:0 !important;"><span>Sab</span><input type="checkbox" name="weekdays" value="5" style="width:26px !important; height:26px !important; min-width:26px !important; accent-color:#111 !important; margin:0 !important; cursor:pointer;"></label>
+<label style="display:flex !important; justify-content:space-between !important; align-items:center !important; width:100% !important; max-width:420px !important; padding:12px 0 !important; border-bottom:1px solid #eee !important; font-size:16px !important; margin:0 !important;"><span>Dom</span><input type="checkbox" name="weekdays" value="6" style="width:26px !important; height:26px !important; min-width:26px !important; accent-color:#111 !important; margin:0 !important; cursor:pointer;"></label></div>
 <div><b>Horarios:</b><br>
 <input type="time" name="time" style="padding:8px;">
 <input type="time" name="time" style="padding:8px;">
@@ -61,3 +61,4 @@
 </section>
 <p style="margin:16px 0;"><a href="/admin">← Voltar pro Painel</a></p>
 {% endblock %}
+
