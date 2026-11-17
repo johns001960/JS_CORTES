@@ -275,16 +275,16 @@ def admin_calendar():
                     if not exists:
                         con.execute("INSERT INTO blocked_times (date, time) VALUES (?, ?)", (date_value, time_value))
                         flash("Horário bloqueado!")
-        elif action == "delete_time":
+            elif action == "delete_time":
                 block_id = request.form.get("block_id")
                 con.execute("DELETE FROM blocked_times WHERE id=?", (block_id,))
                 flash("Bloqueio de horário removido!")
-        elif action == "delete":
+            elif action == "delete":
                 block_id = request.form.get("block_id")
                 con.execute("DELETE FROM blocked_days WHERE id=?", (block_id,))
                 flash("Bloqueio removido!")
-        con.commit()
-        return redirect(url_for("admin_calendar"))
+            con.commit()
+            return redirect(url_for("admin_calendar"))
             
         with db() as con:
             all_blocked = con.execute("SELECT * FROM blocked_days ORDER BY date, weekday").fetchall()
