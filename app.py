@@ -296,6 +296,7 @@ def admin_calendar():
             blocked_weekdays = []
 
           
+        blocked_weekdays = []
         for r in all_blocked:
                 try:
                     w = r["weekday"]
