@@ -245,6 +245,7 @@ def dashboard():
 @app.route("/admin/calendario", methods=["GET", "POST"])
 @admin_required
 def admin_calendar():
+    action = None
     with db() as con:
         if request.method == "POST":
             action = request.form.get("action")
