@@ -266,15 +266,41 @@ def admin_calendar():
                     if not exists:
                         con.execute("INSERT INTO blocked_days (date) VALUES (?)", (date_value,))
                         flash("Dia bloqueado!")
-            elif action == "block_time":
-                date_value = request.form.get("date")
-                time_value = request.form.get("time")
-                if date_value and time_value:
-                    con.execute("CREATE TABLE IF NOT EXISTS blocked_times (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, time TEXT)")
-                    exists = con.execute("SELECT id FROM blocked_times WHERE date=? AND time=?", (date_value, time_value)).fetchone()
-                    if not exists:
-                        con.execute("INSERT INTO blocked_times (date, time) VALUES (?, ?)", (date_value, time_value))
-                        flash("Horário bloqueado!")
+        elif action == "block_time":
+            date_value = request.form.get("date")
+            times = [t.strip() for t in request.form.getlist("time") if t and t.strip()]
+            extra = request.form.get("times_text") or ""
+            for t in extra.replace(";", ",").split(","):
+                t = t.strip()
+                if t and t not in times:
+                    times.append(t)
+            weekdays = request.form.getlist("weekdays")
+            try:
+                weeks = int(request.form.get("weeks") or 1)
+            except:
+                weeks = 1
+            weeks = max(1, min(weeks, 12))
+            if date_value and times:
+                con.execute("CREATE TABLE IF NOT EXISTS blocked_times (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, time TEXT)")
+                from datetime import date as _date, timedelta as _td
+                dates_to_block = []
+                if weekdays:
+                    wd = [int(x) for x in weekdays]
+                    d0 = _date.fromisoformat(date_value)
+                    for off in range(weeks * 7):
+                        d = d0 + _td(days=off)
+                        if d.weekday() in wd:
+                            dates_to_block.append(d.isoformat())
+                else:
+                    dates_to_block = [date_value]
+                count = 0
+                for d in dates_to_block:
+                    for tv in times:
+                        exists = con.execute("SELECT id FROM blocked_times WHERE date=? AND time=?", (d, tv)).fetchone()
+                        if not exists:
+                            con.execute("INSERT INTO blocked_times (date, time) VALUES (?, ?)", (d, tv))
+                            count += 1
+                flash(f"{count} horario(s) bloqueado(s)!")
             elif action == "delete_time":
                 block_id = request.form.get("block_id")
                 con.execute("DELETE FROM blocked_times WHERE id=?", (block_id,))
