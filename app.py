@@ -137,18 +137,21 @@ def available_times():
             _rows = _con2.execute("SELECT time FROM working_hours ORDER BY time").fetchall()
             if len(_rows) < 5:
                 # Se a tabela foi criada vazia pelo botao Adicionar, completa com os padroes sem apagar o que ja tem
-                for _t in ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]:
-                    _con2.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (_t,))
+                if con.execute("SELECT COUNT(*) FROM working_hours").fetchone()[0] == 0:
+                    for _t in ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]:
+                        _con2.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (_t,))
                 _con2.commit()
                 _rows = _con2.execute("SELECT time FROM working_hours ORDER BY time").fetchall()
             if not _rows:
-                for _t in ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]:
-                    _con2.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (_t,))
+                if con.execute("SELECT COUNT(*) FROM working_hours").fetchone()[0] == 0:
+                    for _t in ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]:
+                        _con2.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (_t,))
                 _con2.commit()
                 _rows = _con2.execute("SELECT time FROM working_hours ORDER BY time").fetchall()
             slots = [r[0] for r in _rows]
     except Exception:
-        slots = ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]
+        if con.execute("SELECT COUNT(*) FROM working_hours").fetchone()[0] == 0:
+            slots = ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]
     return {"times": [t for t in slots if t not in occupied]}
 
 
@@ -159,8 +162,9 @@ def add_working_hour():
         with db() as con:
             con.execute("CREATE TABLE IF NOT EXISTS working_hours (time TEXT PRIMARY KEY)")
             # Garante padroes antes de adicionar
-            for _t in ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]:
-                con.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (_t,))
+            if con.execute("SELECT COUNT(*) FROM working_hours").fetchone()[0] == 0:
+                for _t in ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]:
+                    con.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (_t,))
             con.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (t,))
             con.execute("CREATE TABLE IF NOT EXISTS working_hours_history (id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, action TEXT, created_at TEXT)")
             con.execute("INSERT INTO working_hours_history (time, action, created_at) VALUES (?, ?, datetime('now', '-3 hours'))", (t, "adicionado"))
@@ -290,6 +294,12 @@ def dashboard():
 @app.route("/admin/calendario", methods=["GET", "POST"])
 @admin_required
 def admin_calendar():
+    try:
+        with db() as _ch:
+            _ch.execute("CREATE TABLE IF NOT EXISTS working_hours_history (id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, action TEXT, created_at TEXT)")
+            hours_history = [dict(time=r[0], action=r[1], created_at=r[2]) for r in _ch.execute("SELECT time, action, created_at FROM working_hours_history ORDER BY id DESC").fetchall()]
+    except Exception:
+        hours_history = []
     try:
         with db() as _c:
             _c.execute("CREATE TABLE IF NOT EXISTS working_hours (time TEXT PRIMARY KEY)")
@@ -480,7 +490,7 @@ def admin_calendar():
             except Exception as e:
                 print("erro bloquear", e)
             return redirect(url_for("admin_calendar"))
-    return render_template("admin_calendar.html", blocked=all_blocked, blocked_weekdays=blocked_weekdays, blocked_times=all_blocked_times)
+    return render_template("admin_calendar.html", blocked=all_blocked, blocked_weekdays=blocked_weekdays, blocked_times=all_blocked_times, hours_history=hours_history)
 
 @app.route("/admin/agendamento/<int:appointment_id>/editar", methods=["GET", "POST"])
 @admin_required
