@@ -173,7 +173,7 @@ def remove_working_hour():
     if t:
         with db() as con:
             con.execute("CREATE TABLE IF NOT EXISTS working_hours (time TEXT PRIMARY KEY)")
-            con.execute("con.execute("CREATE TABLE IF NOT EXISTS working_hours_history (id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, action TEXT, created_at TEXT)")
+            con.execute("CREATE TABLE IF NOT EXISTS working_hours_history (id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, action TEXT, created_at TEXT)")
             con.execute("INSERT INTO working_hours_history (time, action, created_at) VALUES (?, ?, datetime('now', '-3 hours'))", (t, "removido"))
             con.execute("DELETE FROM working_hours WHERE time=?", (t,))
             con.commit()
