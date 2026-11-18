@@ -685,15 +685,16 @@ if __name__ == "__main__":
 @app.route("/admin/calendario/limpar-historico", methods=["POST"])
 @admin_required
 def limpar_historico_calendario():
-    if not is_admin():
-        return redirect("/login")
-    with db() as con:
-        # Tenta os 2 nomes possiveis da tabela de historico
-        for tabela in ["working_hours_history", "horario_historico", "historico_horarios", "history"]:
-            try:
-                con.execute(f"DELETE FROM {tabela}")
-            except Exception:
-                pass
-        con.commit()
+    try:
+        with db() as con:
+            cur = con.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            tabelas = [r[0] for r in cur.fetchall()]
+            for tab in tabelas:
+                if "histor" in tab.lower() or "working_hours" in tab.lower():
+                    con.execute(f'DELETE FROM "{tab}"')
+            con.commit()
+    except Exception as e:
+        print("ERRO LIMPAR HISTORICO:", e)
     return redirect("/admin/calendario")
+
 
