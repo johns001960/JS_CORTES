@@ -267,41 +267,77 @@ def admin_calendar():
                     if not exists:
                         con.execute("INSERT INTO blocked_days (date) VALUES (?)", (date_value,))
                         flash("Dia bloqueado!")
-        elif action == "block_time":
-            date_value = request.form.get("date")
-            times = [t.strip() for t in request.form.getlist("time") if t and t.strip()]
-            extra = request.form.get("times_text") or ""
-            for t in extra.replace(";", ",").split(","):
-                t = t.strip()
-                if t and t not in times:
-                    times.append(t)
-            weekdays = request.form.getlist("weekdays")
-            try:
-                weeks = int(request.form.get("weeks") or 1)
-            except:
-                weeks = 1
-            weeks = max(1, min(weeks, 12))
-            if date_value and times:
-                con.execute("CREATE TABLE IF NOT EXISTS blocked_times (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, time TEXT)")
-                from datetime import date as _date, timedelta as _td
-                dates_to_block = []
-                if weekdays:
-                    wd = [int(x) for x in weekdays]
-                    d0 = _date.fromisoformat(date_value)
-                    for off in range(weeks * 7):
-                        d = d0 + _td(days=off)
-                        if d.weekday() in wd:
-                            dates_to_block.append(d.isoformat())
+            elif action == "block_weekday_time":
+                from datetime import date, timedelta
+                import calendar
+                weekdays = request.form.getlist("blocked_weekdays")
+                hora_inicio = request.form.get("hora_inicio", "10:00")
+                hora_fim = request.form.get("hora_fim", "12:00")
+                duracao = request.form.get("duracao_bloco3", "essa_semana")
+                hoje = date.today()
+                if duracao == "essa_semana":
+                    fim_periodo = hoje + timedelta(days=(6 - hoje.weekday()))
+                elif duracao == "mes_todo":
+                    ultimo = calendar.monthrange(hoje.year, hoje.month)[1]
+                    fim_periodo = date(hoje.year, hoje.month, ultimo)
                 else:
-                    dates_to_block = [date_value]
-                count = 0
-                for d in dates_to_block:
-                    for tv in times:
-                        exists = con.execute("SELECT id FROM blocked_times WHERE date=? AND time=?", (d, tv)).fetchone()
-                        if not exists:
-                            con.execute("INSERT INTO blocked_times (date, time) VALUES (?, ?)", (d, tv))
-                            count += 1
-                flash(f"{count} horario(s) bloqueado(s)!")
+                    fim_periodo = hoje + timedelta(days=90)
+                def _min(h):
+                    hh, mm = h.split(":")
+                    return int(hh)*60 + int(mm)
+                horarios = []
+                m = _min(hora_inicio)
+                while m < _min(hora_fim):
+                    horarios.append(f"{m//60:02d}:{m%60:02d}")
+                    m += 30
+                con = sqlite3.connect("js_cortes.db")
+                con.execute("CREATE TABLE IF NOT EXISTS blocked_times (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, time TEXT)")
+                cur = con.cursor()
+                d = hoje
+                while d <= fim_periodo:
+                    if str(d.weekday()) in weekdays:
+                        for h in horarios:
+                            cur.execute("SELECT 1 FROM blocked_times WHERE date=? AND time=?", (str(d), h))
+                            if not cur.fetchone():
+                                cur.execute("INSERT INTO blocked_times (date, time) VALUES (?, ?)", (str(d), h))
+                    d += timedelta(days=1)
+                con.commit()
+                con.close()
+            elif action == "block_time":
+                date_value = request.form.get("date")
+                times = [t.strip() for t in request.form.getlist("time") if t and t.strip()]
+                extra = request.form.get("times_text") or ""
+                for t in extra.replace(";", ",").split(","):
+                    t = t.strip()
+                    if t and t not in times:
+                        times.append(t)
+                weekdays = request.form.getlist("weekdays")
+                try:
+                    weeks = int(request.form.get("weeks") or 1)
+                except:
+                    weeks = 1
+                weeks = max(1, min(weeks, 12))
+                if date_value and times:
+                    con.execute("CREATE TABLE IF NOT EXISTS blocked_times (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, time TEXT)")
+                    from datetime import date as _date, timedelta as _td
+                    dates_to_block = []
+                    if weekdays:
+                        wd = [int(x) for x in weekdays]
+                        d0 = _date.fromisoformat(date_value)
+                        for off in range(weeks * 7):
+                            d = d0 + _td(days=off)
+                            if d.weekday() in wd:
+                                dates_to_block.append(d.isoformat())
+                    else:
+                        dates_to_block = [date_value]
+                    count = 0
+                    for d in dates_to_block:
+                        for tv in times:
+                            exists = con.execute("SELECT id FROM blocked_times WHERE date=? AND time=?", (d, tv)).fetchone()
+                            if not exists:
+                                con.execute("INSERT INTO blocked_times (date, time) VALUES (?, ?)", (d, tv))
+                                count += 1
+                    flash(f"{count} horario(s) bloqueado(s)!")
             elif action == "delete_time":
                 block_id = request.form.get("block_id")
                 con.execute("DELETE FROM blocked_times WHERE id=?", (block_id,))
