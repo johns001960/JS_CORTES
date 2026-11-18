@@ -683,7 +683,7 @@ if __name__ == "__main__":
     app.run(debug=True)
 
 @app.route("/admin/calendario/limpar-historico", methods=["POST"])
-@login_required
+@admin_required
 def limpar_historico_calendario():
     if not is_admin():
         return redirect("/login")
