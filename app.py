@@ -290,7 +290,7 @@ def admin_calendar():
                     m = _min(hora_inicio)
                     while m < _min(hora_fim):
                         horarios.append(f"{m//60:02d}:{m%60:02d}")
-                        m += 30
+                        m += 60
                     con = sqlite3.connect("js_cortes.db")
                     con.execute("CREATE TABLE IF NOT EXISTS blocked_times (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, time TEXT)")
                     cur = con.cursor()
