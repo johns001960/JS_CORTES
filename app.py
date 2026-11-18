@@ -162,6 +162,8 @@ def add_working_hour():
             for _t in ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]:
                 con.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (_t,))
             con.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (t,))
+            con.execute("CREATE TABLE IF NOT EXISTS working_hours_history (id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, action TEXT, created_at TEXT)")
+            con.execute("INSERT INTO working_hours_history (time, action, created_at) VALUES (?, ?, datetime('now', '-3 hours'))", (t, "adicionado"))
             con.commit()
     return redirect(url_for("admin_calendar"))
 
@@ -171,6 +173,8 @@ def remove_working_hour():
     if t:
         with db() as con:
             con.execute("CREATE TABLE IF NOT EXISTS working_hours (time TEXT PRIMARY KEY)")
+            con.execute("con.execute("CREATE TABLE IF NOT EXISTS working_hours_history (id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, action TEXT, created_at TEXT)")
+            con.execute("INSERT INTO working_hours_history (time, action, created_at) VALUES (?, ?, datetime('now', '-3 hours'))", (t, "removido"))
             con.execute("DELETE FROM working_hours WHERE time=?", (t,))
             con.commit()
     return redirect(url_for("admin_calendar"))

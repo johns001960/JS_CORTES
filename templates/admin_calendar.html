@@ -10,6 +10,30 @@
   <b>Horarios atuais:</b> {% if working_hours_list %}{{ working_hours_list | join(', ') }}{% else %}Nenhum horario ainda - recarregue a pagina{% endif %}
   <br><small>Se aparecer so um horario, recarregue a pagina que ele completa sozinho.</small>
 </div>
+<div style="background:#fff; border:1px solid #ddd; padding:12px; border-radius:8px; margin-top:12px;">
+  <b>Historico de Horarios</b>
+  <div id="hist-3">
+    {% if hours_history %}
+      {% for h in hours_history[:3] %}
+        <div style="padding:6px 0; border-bottom:1px solid #eee;">{{ h.time }} - {{ h.action }} <small style="color:#888;">{{ h.created_at }}</small></div>
+      {% endfor %}
+    {% else %}
+      <div style="color:#888;">Nenhum horario adicionado/removido ainda. Adicione um horario para aparecer aqui.</div>
+    {% endif %}
+  </div>
+  <div id="hist-all" style="display:none;">
+    {% if hours_history %}
+      {% for h in hours_history %}
+        <div style="padding:6px 0; border-bottom:1px solid #eee;">{{ h.time }} - {{ h.action }} <small style="color:#888;">{{ h.created_at }}</small></div>
+      {% endfor %}
+    {% endif %}
+  </div>
+  {% if hours_history and hours_history|length > 3 %}
+  <button onclick="document.getElementById('hist-3').style.display='none'; document.getElementById('hist-all').style.display='block'; this.style.display='none'; document.getElementById('btn-voltar-hist').style.display='inline-block';" style="margin-top:8px; background:#333; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">Ver historico completo</button>
+  <button id="btn-voltar-hist" onclick="document.getElementById('hist-all').style.display='none'; document.getElementById('hist-3').style.display='block'; this.style.display='none';" style="display:none; margin-top:8px; background:#eee; border:none; padding:8px 12px; border-radius:6px; cursor:pointer;">Ver so os 3 ultimos</button>
+  {% endif %}
+</div>
+
 
   <form action="/admin/remove-hour" method="POST" style="display:flex; gap:10px;">
     <input type="time" name="new_time" required style="padding:8px;">
