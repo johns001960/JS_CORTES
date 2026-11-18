@@ -28,28 +28,30 @@
 {% endif %}{% endfor %}
 </section>
 <section class="panel"><h2>3. Bloquear um horario
-<p>Marque os dias da semana, o horario de / ate, e por quanto tempo quer bloquear.</p>
+<p style="margin:4px 0;">Marque os dias da semana, o horario de / ate, e por quanto tempo quer bloquear.</p>
 
-Dias da semana:<br>
-<label>Seg <input type="checkbox" name="blocked_weekdays" value="0"></label><br>
-<label>Ter <input type="checkbox" name="blocked_weekdays" value="1"></label><br>
-<label>Qua <input type="checkbox" name="blocked_weekdays" value="2"></label><br>
-<label>Qui <input type="checkbox" name="blocked_weekdays" value="3"></label><br>
-<label>Sex <input type="checkbox" name="blocked_weekdays" value="4"></label><br>
-<label>Sab <input type="checkbox" name="blocked_weekdays" value="5"></label><br>
-<label>Dom <input type="checkbox" name="blocked_weekdays" value="6"></label><br>
-
-<div style="margin:15px 0;">
-  <b>Horario:</b><br>
-  De: <input type="time" name="hora_inicio" value="10:00"><br>
-  Ate: <input type="time" name="hora_fim" value="12:00">
+<p style="margin:6px 0 4px 0;">Dias da semana:</p>
+<div style="margin:0 0 8px 0;">
+  <label style="display:inline-block; margin:0 10px 4px 0;">Seg <input type="checkbox" name="blocked_weekdays" value="0" style="width:auto; margin:0 0 0 3px; vertical-align:middle;"></label>
+  <label style="display:inline-block; margin:0 10px 4px 0;">Ter <input type="checkbox" name="blocked_weekdays" value="1" style="width:auto; margin:0 0 0 3px; vertical-align:middle;"></label>
+  <label style="display:inline-block; margin:0 10px 4px 0;">Qua <input type="checkbox" name="blocked_weekdays" value="2" style="width:auto; margin:0 0 0 3px; vertical-align:middle;"></label>
+  <label style="display:inline-block; margin:0 10px 4px 0;">Qui <input type="checkbox" name="blocked_weekdays" value="3" style="width:auto; margin:0 0 0 3px; vertical-align:middle;"></label>
+  <label style="display:inline-block; margin:0 10px 4px 0;">Sex <input type="checkbox" name="blocked_weekdays" value="4" style="width:auto; margin:0 0 0 3px; vertical-align:middle;"></label>
+  <label style="display:inline-block; margin:0 10px 4px 0;">Sab <input type="checkbox" name="blocked_weekdays" value="5" style="width:auto; margin:0 0 0 3px; vertical-align:middle;"></label>
+  <label style="display:inline-block; margin:0 10px 4px 0;">Dom <input type="checkbox" name="blocked_weekdays" value="6" style="width:auto; margin:0 0 0 3px; vertical-align:middle;"></label>
 </div>
 
-<div style="margin:15px 0;">
+<div style="margin:8px 0;">
+  <b>Horario:</b><br>
+  De: <input type="time" name="hora_inicio" value="10:00" style="width:110px; display:inline-block;"> 
+  Ate: <input type="time" name="hora_fim" value="12:00" style="width:110px; display:inline-block;">
+</div>
+
+<div style="margin:8px 0;">
   <b>Bloquear por quanto tempo?</b><br>
-  <label><input type="radio" name="duracao_bloco3" value="essa_semana" checked> So essa semana</label><br>
-  <label><input type="radio" name="duracao_bloco3" value="mes_todo"> O mes todo</label><br>
-  <label><input type="radio" name="duracao_bloco3" value="sempre"> Sempre</label><br>
+  <label style="display:inline-block; margin:0 12px 4px 0;"><input type="radio" name="duracao_bloco3" value="essa_semana" checked style="width:auto; vertical-align:middle;"> So essa semana</label>
+  <label style="display:inline-block; margin:0 12px 4px 0;"><input type="radio" name="duracao_bloco3" value="mes_todo" style="width:auto; vertical-align:middle;"> O mes todo</label>
+  <label style="display:inline-block; margin:0 12px 4px 0;"><input type="radio" name="duracao_bloco3" value="sempre" style="width:auto; vertical-align:middle;"> Sempre</label>
 </div>
 
 <input type="hidden" name="action" value="block_weekday_time">
