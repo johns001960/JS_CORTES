@@ -130,9 +130,41 @@ def available_times():
         blocked_list = []
     occupied = list(occupied) + blocked_list
     # Altere esta lista para ajustar os horários de atendimento da barbearia.
-    slots = ["09:00", "10:00", "11:00",
-         "13:00", "14:00", "15:00", "16:00", "17:00"]
+    # Horarios dinamicos - vem da tabela working_hours
+    try:
+        with db() as _con2:
+            _con2.execute("CREATE TABLE IF NOT EXISTS working_hours (time TEXT PRIMARY KEY)")
+            _rows = _con2.execute("SELECT time FROM working_hours ORDER BY time").fetchall()
+            if not _rows:
+                for _t in ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]:
+                    _con2.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (_t,))
+                _con2.commit()
+                _rows = _con2.execute("SELECT time FROM working_hours ORDER BY time").fetchall()
+            slots = [r[0] for r in _rows]
+    except Exception:
+        slots = ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]
     return {"times": [t for t in slots if t not in occupied]}
+
+
+@app.route("/admin/add-hour", methods=["POST"])
+def add_working_hour():
+    t = (request.form.get("new_time") or "").strip()
+    if t:
+        with db() as con:
+            con.execute("CREATE TABLE IF NOT EXISTS working_hours (time TEXT PRIMARY KEY)")
+            con.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (t,))
+            con.commit()
+    return redirect(url_for("admin_calendar"))
+
+@app.route("/admin/remove-hour", methods=["POST"])
+def remove_working_hour():
+    t = (request.form.get("new_time") or "").strip()
+    if t:
+        with db() as con:
+            con.execute("CREATE TABLE IF NOT EXISTS working_hours (time TEXT PRIMARY KEY)")
+            con.execute("DELETE FROM working_hours WHERE time=?", (t,))
+            con.commit()
+    return redirect(url_for("admin_calendar"))
 
 @app.route("/agendar", methods=["POST"])
 def book():

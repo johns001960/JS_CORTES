@@ -1,4 +1,17 @@
 {% extends "base.html" %}{% block title %}Calendário · JS CORTES{% endblock %}{% block content %}
+<div style="background:#fff; padding:15px; border-radius:10px; margin-bottom:15px;">
+  <h3>Adicionar / Remover Horario de Atendimento</h3>
+  <p>Digite o horario que quiser, ex: 05:00, 06:00, 07:00, 08:00, 22:00</p>
+  <form action="/admin/add-hour" method="POST" style="display:flex; gap:10px; margin-bottom:10px;">
+    <input type="time" name="new_time" required style="padding:8px;">
+    <button type="submit" style="padding:8px 15px; background:green; color:white; border:none; border-radius:5px;">Adicionar Horario</button>
+  </form>
+  <form action="/admin/remove-hour" method="POST" style="display:flex; gap:10px;">
+    <input type="time" name="new_time" required style="padding:8px;">
+    <button type="submit" style="padding:8px 15px; background:red; color:white; border:none; border-radius:5px;">Remover Horario</button>
+  </form>
+</div>
+
 <section class="hero"><p class="eyebrow">PAINEL PRIVADO</p><h1>Gerenciar Calendário</h1><p>Bloqueie dias da semana ou um dia só. O cliente vai ver o dia cinza, sem conseguir clicar.</p></section>
 <section class="panel"><h2>1. Bloquear dia do mês </h2><p class="muted">Se você bloquear a Terça, TODA terça fica bloqueada. Clique de novo pra desbloquear.</p>
 {% set dias = [(0,'Segunda'),(1,'Terça'),(2,'Quarta'),(3,'Quinta'),(4,'Sexta'),(5,'Sábado'),(6,'Domingo')] %}
