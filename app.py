@@ -135,6 +135,12 @@ def available_times():
         with db() as _con2:
             _con2.execute("CREATE TABLE IF NOT EXISTS working_hours (time TEXT PRIMARY KEY)")
             _rows = _con2.execute("SELECT time FROM working_hours ORDER BY time").fetchall()
+            if len(_rows) < 5:
+                # Se a tabela foi criada vazia pelo botao Adicionar, completa com os padroes sem apagar o que ja tem
+                for _t in ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]:
+                    _con2.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (_t,))
+                _con2.commit()
+                _rows = _con2.execute("SELECT time FROM working_hours ORDER BY time").fetchall()
             if not _rows:
                 for _t in ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]:
                     _con2.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (_t,))
@@ -152,6 +158,9 @@ def add_working_hour():
     if t:
         with db() as con:
             con.execute("CREATE TABLE IF NOT EXISTS working_hours (time TEXT PRIMARY KEY)")
+            # Garante padroes antes de adicionar
+            for _t in ["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]:
+                con.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (_t,))
             con.execute("INSERT OR IGNORE INTO working_hours (time) VALUES (?)", (t,))
             con.commit()
     return redirect(url_for("admin_calendar"))
@@ -277,6 +286,12 @@ def dashboard():
 @app.route("/admin/calendario", methods=["GET", "POST"])
 @admin_required
 def admin_calendar():
+    try:
+        with db() as _c:
+            _c.execute("CREATE TABLE IF NOT EXISTS working_hours (time TEXT PRIMARY KEY)")
+            working_hours_list = [r[0] for r in _c.execute("SELECT time FROM working_hours ORDER BY time").fetchall()]
+    except Exception:
+        working_hours_list = []
     action = None
     with db() as con:
         if request.method == "POST":
