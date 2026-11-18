@@ -303,7 +303,6 @@ def admin_calendar():
                                     cur.execute("INSERT INTO blocked_times (date, time) VALUES (?, ?)", (str(d), h))
                         d += timedelta(days=1)
                     con.commit()
-                    con.close()
                 elif action == "block_time":
                     date_value = request.form.get("date")
                     times = [t.strip() for t in request.form.getlist("time") if t and t.strip()]
