@@ -27,10 +27,10 @@
 </form>
 {% endif %}{% endfor %}
 </section>
-<section class="panel"><h2>3. Bloquear um horario</h2><p class="muted">Marque os dias da semana, o horario de / ate, e por quanto tempo, marque os dias da semana, os horarios e quantas semanas repete. Se nao marcar nenhum dia da semana, bloqueia so a data escolhida.</p>
+<section class="panel"><h2>3. Bloquear um horario</h2><p class="muted">Marque os dias da semana, o horario de / ate, e por quanto tempo quer bloquear.</p>
 <form method="post" style="display:flex; flex-direction:column; gap:8px;">
 <input type="hidden" name="action" value="block_time">
-<label><input type="date" name="date" required style="padding:8px;"></label>
+<label><!-- calendario removido fix7 --></label>
 <div><b>Dias da semana:</b><br>
 <label style="display:flex !important; justify-content:space-between !important; align-items:center !important; width:100% !important; max-width:420px !important; padding:12px 0 !important; border-bottom:1px solid #eee !important; font-size:16px !important; margin:0 !important;"><span>Seg</span><input type="checkbox" name="weekdays" value="0" style="width:26px !important; height:26px !important; min-width:26px !important; accent-color:#111 !important; margin:0 !important; cursor:pointer;"></label>
 <label style="display:flex !important; justify-content:space-between !important; align-items:center !important; width:100% !important; max-width:420px !important; padding:12px 0 !important; border-bottom:1px solid #eee !important; font-size:16px !important; margin:0 !important;"><span>Ter</span><input type="checkbox" name="weekdays" value="1" style="width:26px !important; height:26px !important; min-width:26px !important; accent-color:#111 !important; margin:0 !important; cursor:pointer;"></label>
@@ -46,7 +46,7 @@
 <input type="time" name="time" style="padding:8px;">
 <br><small>Ou digite varios separados por virgula:</small><br>
 <input type="text" name="times_text" placeholder="Ex: 14:00, 15:00, 16:00" style="padding:8px; width:100%;"></div>
-<label>Repetir por quantas semanas? <input type="number" name="weeks" value="1" min="1" max="12" style="padding:8px; width:70px;"></label>
+<label><!-- Repetir removido fix7 --></label>
 
     <div style="margin:15px 0;">
       <b>Horario:</b><br>
