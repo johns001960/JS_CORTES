@@ -267,7 +267,56 @@ def admin_calendar():
                     if not exists:
                         con.execute("INSERT INTO blocked_days (date) VALUES (?)", (date_value,))
                         flash("Dia bloqueado!")
-        elif action == "block_time":
+                elif action == "block_weekday_time":
+            # BLOCO 3 - Bloquear dia da semana + horario + duracao
+            from datetime import date, timedelta
+            import calendar
+            weekdays = request.form.getlist("blocked_weekdays")
+            hora_inicio = request.form.get("hora_inicio", "10:00")
+            hora_fim = request.form.get("hora_fim", "12:00")
+            duracao = request.form.get("duracao_bloco3", "essa_semana")
+
+            hoje = date.today()
+            if duracao == "essa_semana":
+                # ate domingo dessa semana
+                dias_ate_domingo = 6 - hoje.weekday()
+                fim_periodo = hoje + timedelta(days=dias_ate_domingo)
+            elif duracao == "mes_todo":
+                ultimo_dia = calendar.monthrange(hoje.year, hoje.month)[1]
+                fim_periodo = date(hoje.year, hoje.month, ultimo_dia)
+            else:  # sempre
+                fim_periodo = hoje + timedelta(days=90)
+
+            # Gera horarios de 30 em 30 min entre inicio e fim
+            def para_minutos(h):
+                hh, mm = h.split(":")
+                return int(hh)*60 + int(mm)
+            inicio_min = para_minutos(hora_inicio)
+            fim_min = para_minutos(hora_fim)
+            horarios = []
+            m = inicio_min
+            while m < fim_min:
+                horarios.append(f"{m//60:02d}:{m%60:02d}")
+                m += 30
+
+            con = sqlite3.connect("js_cortes.db")
+            con.execute("CREATE TABLE IF NOT EXISTS blocked_times (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, time TEXT)")
+            cur = con.cursor()
+            d = hoje
+            total = 0
+            while d <= fim_periodo:
+                if str(d.weekday()) in weekdays:
+                    for h in horarios:
+                        cur.execute("SELECT 1 FROM blocked_times WHERE date=? AND time=?", (str(d), h))
+                        if not cur.fetchone():
+                            cur.execute("INSERT INTO blocked_times (date, time) VALUES (?, ?)", (str(d), h))
+                            total += 1
+                d += timedelta(days=1)
+            con.commit()
+            con.close()
+            print(f"BLOCO 3: {total} horarios bloqueados!")
+
+elif action == "block_time":
             date_value = request.form.get("date")
             times = [t.strip() for t in request.form.getlist("time") if t and t.strip()]
             extra = request.form.get("times_text") or ""
