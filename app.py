@@ -178,176 +178,177 @@ def book():
 @app.route("/admin/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form.get("username", "")
-        password = request.form.get("password", "")
         with db() as con:
-            user = con.execute("SELECT * FROM admins WHERE username=?", (username,)).fetchone()
-        if user and check_password_hash(user["password_hash"], password):
-            session.clear()
-            session["admin_id"] = user["id"]
-            return redirect(url_for("dashboard"))
-        flash("Usuário ou senha incorretos.")
-    return render_template("login.html")
+            username = request.form.get("username", "")
+            password = request.form.get("password", "")
+            with db() as con:
+                user = con.execute("SELECT * FROM admins WHERE username=?", (username,)).fetchone()
+            if user and check_password_hash(user["password_hash"], password):
+                session.clear()
+                session["admin_id"] = user["id"]
+                return redirect(url_for("dashboard"))
+            flash("Usuário ou senha incorretos.")
+        return render_template("login.html")
 
-@app.route("/admin/sair")
-def logout():
-    session.clear()
-    return redirect(url_for("login"))
+    @app.route("/admin/sair")
+    def logout():
+        session.clear()
+        return redirect(url_for("login"))
 
-@app.route("/admin")
-@admin_required
-def dashboard():
-    today = date.today()
-    week_start = today - timedelta(days=today.weekday())
-    month_start = today.replace(day=1)
-    with db() as con:
-        services = con.execute("SELECT * FROM services ORDER BY name").fetchall()
-        search = request.args.get("q", "").strip()
-        date_filter = request.args.get("data", "").strip()
-    query = """
-        SELECT a.*, s.name AS service_name, s.price AS service_price
-        FROM appointments a JOIN services s ON s.id=a.service_id
-        WHERE (? = '' OR a.customer_name LIKE '%' || ? || '%' OR a.phone LIKE '%' || ? || '%')
-        AND (? = '' OR a.appointment_date = ?)
-        ORDER BY a.appointment_date DESC, a.appointment_time DESC
-    """
-    appointments = con.execute(query, (search, search, search, date_filter, date_filter)).fetchall()
-    show_all = request.args.get("ver_historico") == "tudo" or request.args.get("show_all") in ("1", "tudo", "true")
-    mes_filtro = request.args.get("mes_filtro", "")
-    active_appointments = [a for a in appointments if a["status"] not in ("Concluído", "Cancelado", "Excluído")]
-    history_all = [a for a in appointments if a["status"] in ("Concluído", "Cancelado", "Excluído")]
-    history_appointments = history_all if show_all else history_all[:3]
-    meses = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"}
-    history_by_month = {}
-    for a in history_appointments:
-        ano_mes = a["appointment_date"][:7]
-        ano = ano_mes[:4]
-        mes = ano_mes[5:7]
-        titulo = f"{meses.get(mes, mes)} de {ano}"
-        if titulo not in history_by_month:
-            history_by_month[titulo] = []
-        history_by_month[titulo].append(a)
-    def total(start, end):
-            row = con.execute("""
-                SELECT COALESCE(SUM(amount_paid),0) AS total FROM appointments
-                WHERE status='Concluído' AND appointment_date BETWEEN ? AND ?
-            """, (start.isoformat(), end.isoformat())).fetchone()
-            return row["total"]
-    day_total = total(today, today)
-    week_total = total(week_start, today)
-    month_total = total(month_start, today)
-    return render_template("admin.html", appointments=appointments, active_appointments=active_appointments, history_appointments=history_appointments, services=services,
-                           day_total=day_total, week_total=week_total, month_total=month_total,
-                           history_by_month=history_by_month,
-                           history_all=history_all, show_all=show_all, mes_filtro=mes_filtro,
-                           today=today.isoformat(),search=search, date_filter=date_filter)
+    @app.route("/admin")
+    @admin_required
+    def dashboard():
+        today = date.today()
+        week_start = today - timedelta(days=today.weekday())
+        month_start = today.replace(day=1)
+        with db() as con:
+            services = con.execute("SELECT * FROM services ORDER BY name").fetchall()
+            search = request.args.get("q", "").strip()
+            date_filter = request.args.get("data", "").strip()
+        query = """
+            SELECT a.*, s.name AS service_name, s.price AS service_price
+            FROM appointments a JOIN services s ON s.id=a.service_id
+            WHERE (? = '' OR a.customer_name LIKE '%' || ? || '%' OR a.phone LIKE '%' || ? || '%')
+            AND (? = '' OR a.appointment_date = ?)
+            ORDER BY a.appointment_date DESC, a.appointment_time DESC
+        """
+        appointments = con.execute(query, (search, search, search, date_filter, date_filter)).fetchall()
+        show_all = request.args.get("ver_historico") == "tudo" or request.args.get("show_all") in ("1", "tudo", "true")
+        mes_filtro = request.args.get("mes_filtro", "")
+        active_appointments = [a for a in appointments if a["status"] not in ("Concluído", "Cancelado", "Excluído")]
+        history_all = [a for a in appointments if a["status"] in ("Concluído", "Cancelado", "Excluído")]
+        history_appointments = history_all if show_all else history_all[:3]
+        meses = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"}
+        history_by_month = {}
+        for a in history_appointments:
+            ano_mes = a["appointment_date"][:7]
+            ano = ano_mes[:4]
+            mes = ano_mes[5:7]
+            titulo = f"{meses.get(mes, mes)} de {ano}"
+            if titulo not in history_by_month:
+                history_by_month[titulo] = []
+            history_by_month[titulo].append(a)
+        def total(start, end):
+                row = con.execute("""
+                    SELECT COALESCE(SUM(amount_paid),0) AS total FROM appointments
+                    WHERE status='Concluído' AND appointment_date BETWEEN ? AND ?
+                """, (start.isoformat(), end.isoformat())).fetchone()
+                return row["total"]
+        day_total = total(today, today)
+        week_total = total(week_start, today)
+        month_total = total(month_start, today)
+        return render_template("admin.html", appointments=appointments, active_appointments=active_appointments, history_appointments=history_appointments, services=services,
+                               day_total=day_total, week_total=week_total, month_total=month_total,
+                               history_by_month=history_by_month,
+                               history_all=history_all, show_all=show_all, mes_filtro=mes_filtro,
+                               today=today.isoformat(),search=search, date_filter=date_filter)
 
-@app.route("/admin/calendario", methods=["GET", "POST"])
-@admin_required
-def admin_calendar():
-    action = None
-    with db() as con:
-        if request.method == "POST":
-            action = request.form.get("action")
-            if action == "weekday":
-                weekday = request.form.get("weekday")
-                if weekday is not None and weekday != "":
-                    weekday = int(weekday)
-                    exists = con.execute("SELECT id FROM blocked_days WHERE weekday=?", (weekday,)).fetchone()
-                    if exists:
-                        con.execute("DELETE FROM blocked_days WHERE weekday=?", (weekday,))
-                        flash("Dia da semana desbloqueado!")
+    @app.route("/admin/calendario", methods=["GET", "POST"])
+    @admin_required
+    def admin_calendar():
+        action = None
+        with db() as con:
+            if request.method == "POST":
+                action = request.form.get("action")
+                if action == "weekday":
+                    weekday = request.form.get("weekday")
+                    if weekday is not None and weekday != "":
+                        weekday = int(weekday)
+                        exists = con.execute("SELECT id FROM blocked_days WHERE weekday=?", (weekday,)).fetchone()
+                        if exists:
+                            con.execute("DELETE FROM blocked_days WHERE weekday=?", (weekday,))
+                            flash("Dia da semana desbloqueado!")
+                        else:
+                            con.execute("INSERT INTO blocked_days (weekday) VALUES (?)", (weekday,))
+                            flash("Dia da semana bloqueado!")
+                elif action == "date":
+                    date_value = request.form.get("date")
+                    if date_value:
+                        exists = con.execute("SELECT id FROM blocked_days WHERE date=?", (date_value,)).fetchone()
+                        if not exists:
+                            con.execute("INSERT INTO blocked_days (date) VALUES (?)", (date_value,))
+                            flash("Dia bloqueado!")
+                elif action == "block_weekday_time":
+                    from datetime import date, timedelta
+                    import calendar
+                    weekdays = request.form.getlist("blocked_weekdays")
+                    hora_inicio = request.form.get("hora_inicio", "10:00")
+                    hora_fim = request.form.get("hora_fim", "12:00")
+                    duracao = request.form.get("duracao_bloco3", "essa_semana")
+                    hoje = date.today()
+                    if duracao == "essa_semana":
+                        fim_periodo = hoje + timedelta(days=(6 - hoje.weekday()))
+                    elif duracao == "mes_todo":
+                        ultimo = calendar.monthrange(hoje.year, hoje.month)[1]
+                        fim_periodo = date(hoje.year, hoje.month, ultimo)
                     else:
-                        con.execute("INSERT INTO blocked_days (weekday) VALUES (?)", (weekday,))
-                        flash("Dia da semana bloqueado!")
-            elif action == "date":
-                date_value = request.form.get("date")
-                if date_value:
-                    exists = con.execute("SELECT id FROM blocked_days WHERE date=?", (date_value,)).fetchone()
-                    if not exists:
-                        con.execute("INSERT INTO blocked_days (date) VALUES (?)", (date_value,))
-                        flash("Dia bloqueado!")
-            elif action == "block_weekday_time":
-                from datetime import date, timedelta
-                import calendar
-                weekdays = request.form.getlist("blocked_weekdays")
-                hora_inicio = request.form.get("hora_inicio", "10:00")
-                hora_fim = request.form.get("hora_fim", "12:00")
-                duracao = request.form.get("duracao_bloco3", "essa_semana")
-                hoje = date.today()
-                if duracao == "essa_semana":
-                    fim_periodo = hoje + timedelta(days=(6 - hoje.weekday()))
-                elif duracao == "mes_todo":
-                    ultimo = calendar.monthrange(hoje.year, hoje.month)[1]
-                    fim_periodo = date(hoje.year, hoje.month, ultimo)
-                else:
-                    fim_periodo = hoje + timedelta(days=90)
-                def _min(h):
-                    hh, mm = h.split(":")
-                    return int(hh)*60 + int(mm)
-                horarios = []
-                m = _min(hora_inicio)
-                while m < _min(hora_fim):
-                    horarios.append(f"{m//60:02d}:{m%60:02d}")
-                    m += 30
-                con = sqlite3.connect("js_cortes.db")
-                con.execute("CREATE TABLE IF NOT EXISTS blocked_times (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, time TEXT)")
-                cur = con.cursor()
-                d = hoje
-                while d <= fim_periodo:
-                    if str(d.weekday()) in weekdays:
-                        for h in horarios:
-                            cur.execute("SELECT 1 FROM blocked_times WHERE date=? AND time=?", (str(d), h))
-                            if not cur.fetchone():
-                                cur.execute("INSERT INTO blocked_times (date, time) VALUES (?, ?)", (str(d), h))
-                    d += timedelta(days=1)
-                con.commit()
-                con.close()
-            elif action == "block_time":
-                date_value = request.form.get("date")
-                times = [t.strip() for t in request.form.getlist("time") if t and t.strip()]
-                extra = request.form.get("times_text") or ""
-                for t in extra.replace(";", ",").split(","):
-                    t = t.strip()
-                    if t and t not in times:
-                        times.append(t)
-                weekdays = request.form.getlist("weekdays")
-                try:
-                    weeks = int(request.form.get("weeks") or 1)
-                except:
-                    weeks = 1
-                weeks = max(1, min(weeks, 12))
-                if date_value and times:
+                        fim_periodo = hoje + timedelta(days=90)
+                    def _min(h):
+                        hh, mm = h.split(":")
+                        return int(hh)*60 + int(mm)
+                    horarios = []
+                    m = _min(hora_inicio)
+                    while m < _min(hora_fim):
+                        horarios.append(f"{m//60:02d}:{m%60:02d}")
+                        m += 30
+                    con = sqlite3.connect("js_cortes.db")
                     con.execute("CREATE TABLE IF NOT EXISTS blocked_times (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, time TEXT)")
-                    from datetime import date as _date, timedelta as _td
-                    dates_to_block = []
-                    if weekdays:
-                        wd = [int(x) for x in weekdays]
-                        d0 = _date.fromisoformat(date_value)
-                        for off in range(weeks * 7):
-                            d = d0 + _td(days=off)
-                            if d.weekday() in wd:
-                                dates_to_block.append(d.isoformat())
-                    else:
-                        dates_to_block = [date_value]
-                    count = 0
-                    for d in dates_to_block:
-                        for tv in times:
-                            exists = con.execute("SELECT id FROM blocked_times WHERE date=? AND time=?", (d, tv)).fetchone()
-                            if not exists:
-                                con.execute("INSERT INTO blocked_times (date, time) VALUES (?, ?)", (d, tv))
-                                count += 1
-                    flash(f"{count} horario(s) bloqueado(s)!")
-            elif action == "delete_time":
-                block_id = request.form.get("block_id")
-                con.execute("DELETE FROM blocked_times WHERE id=?", (block_id,))
-                flash("Bloqueio de horário removido!")
-            elif action == "delete":
-                block_id = request.form.get("block_id")
-                con.execute("DELETE FROM blocked_days WHERE id=?", (block_id,))
-                flash("Bloqueio removido!")
-            con.commit()
-            return redirect(url_for("admin_calendar"))
+                    cur = con.cursor()
+                    d = hoje
+                    while d <= fim_periodo:
+                        if str(d.weekday()) in weekdays:
+                            for h in horarios:
+                                cur.execute("SELECT 1 FROM blocked_times WHERE date=? AND time=?", (str(d), h))
+                                if not cur.fetchone():
+                                    cur.execute("INSERT INTO blocked_times (date, time) VALUES (?, ?)", (str(d), h))
+                        d += timedelta(days=1)
+                    con.commit()
+                    con.close()
+                elif action == "block_time":
+                    date_value = request.form.get("date")
+                    times = [t.strip() for t in request.form.getlist("time") if t and t.strip()]
+                    extra = request.form.get("times_text") or ""
+                    for t in extra.replace(";", ",").split(","):
+                        t = t.strip()
+                        if t and t not in times:
+                            times.append(t)
+                    weekdays = request.form.getlist("weekdays")
+                    try:
+                        weeks = int(request.form.get("weeks") or 1)
+                    except:
+                        weeks = 1
+                    weeks = max(1, min(weeks, 12))
+                    if date_value and times:
+                        con.execute("CREATE TABLE IF NOT EXISTS blocked_times (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, time TEXT)")
+                        from datetime import date as _date, timedelta as _td
+                        dates_to_block = []
+                        if weekdays:
+                            wd = [int(x) for x in weekdays]
+                            d0 = _date.fromisoformat(date_value)
+                            for off in range(weeks * 7):
+                                d = d0 + _td(days=off)
+                                if d.weekday() in wd:
+                                    dates_to_block.append(d.isoformat())
+                        else:
+                            dates_to_block = [date_value]
+                        count = 0
+                        for d in dates_to_block:
+                            for tv in times:
+                                exists = con.execute("SELECT id FROM blocked_times WHERE date=? AND time=?", (d, tv)).fetchone()
+                                if not exists:
+                                    con.execute("INSERT INTO blocked_times (date, time) VALUES (?, ?)", (d, tv))
+                                    count += 1
+                        flash(f"{count} horario(s) bloqueado(s)!")
+                elif action == "delete_time":
+                    block_id = request.form.get("block_id")
+                    con.execute("DELETE FROM blocked_times WHERE id=?", (block_id,))
+                    flash("Bloqueio de horário removido!")
+                elif action == "delete":
+                    block_id = request.form.get("block_id")
+                    con.execute("DELETE FROM blocked_days WHERE id=?", (block_id,))
+                    flash("Bloqueio removido!")
+                con.commit()
+                return redirect(url_for("admin_calendar"))
             
         with db() as con:
             all_blocked = con.execute("SELECT * FROM blocked_days ORDER BY date, weekday").fetchall()
