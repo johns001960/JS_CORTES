@@ -690,11 +690,13 @@ def limpar_historico_calendario():
             cur = con.execute("SELECT name FROM sqlite_master WHERE type='table'")
             tabelas = [r[0] for r in cur.fetchall()]
             for tab in tabelas:
-                if "histor" in tab.lower() or "working_hours" in tab.lower():
+                # SO apaga tabela de HISTORICO, nunca a tabela de horarios atuais
+                if "histor" in tab.lower() or "history" in tab.lower() or "_log" in tab.lower():
                     con.execute(f'DELETE FROM "{tab}"')
             con.commit()
     except Exception as e:
         print("ERRO LIMPAR HISTORICO:", e)
     return redirect("/admin/calendario")
+
 
 
