@@ -1,5 +1,13 @@
 <!doctype html><html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}JS CORTES{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"><script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js"></script><script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script></head>
+<title>{% block title %}JS CORTES{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"><script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js"></script><script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script><style>/* DESIGN COMPLETO JS CORTES - VERDE + DOURADO - SO VISUAL */
+body{background:#f4f1ea !important;font-family:'Segoe UI',Arial,sans-serif !important}
+header{background:#0a2e1f !important}
+header *{color:#fff !important}
+.card{background:#fff !important;border-radius:20px !important;box-shadow:0 8px 22px rgba(0,0,0,.06) !important;border:1px solid #eee !important}
+button,.btn{background:#0a0a0a !important;color:#fff !important;border:1px solid #d4af6a !important;border-radius:30px !important}
+h1,h2,h3{color:#0a2e1f !important}
+</style>
+</head>
 <body><header><a class="brand" href="/">💈 JS CORTES</a>{% if session.get('admin_id') %}<a href="/admin/sair">Sair</a>{% endif %}</header>
 <main>{% with messages=get_flashed_messages() %}{% if messages %}<div class="notice">{% for m in messages %}<p>{{m}}</p>{% endfor %}</div>{% endif %}{% endwith %}
 {% block content %}{% endblock %}</main><footer>JS CORTES · Agendamento online</footer></body></html>
